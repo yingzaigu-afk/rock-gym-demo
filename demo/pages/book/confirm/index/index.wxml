@@ -1,0 +1,38 @@
+<view class="success-container">
+  <view class="success-icon">OK</view>
+  <text class="success-title">预约成功!</text>
+  <text class="success-desc">我们已发送通知到您的微信</text>
+</view>
+
+<view class="booking-details">
+  <view class="detail-row">
+    <text class="detail-label">课程</text>
+    <text class="detail-value">私教课 - {{bookingData.courseType}}</text>
+  </view>
+  <view class="detail-row">
+    <text class="detail-label">教练</text>
+    <text class="detail-value">{{bookingData.coach.name}}</text>
+  </view>
+  <view class="detail-row">
+    <text class="detail-label">时间</text>
+    <text class="detail-value">{{bookingData.date.monthName}}{{bookingData.date.dayNum}}日 {{bookingData.time}}</text>
+  </view>
+  <view class="detail-row">
+    <text class="detail-label">时长</text>
+    <text class="detail-value">{{bookingData.duration}}分钟</text>
+  </view>
+  <view class="detail-row detail-total">
+    <text class="detail-label">实付</text>
+    <text class="detail-amount">¥{{bookingData.coach.price}}</text>
+  </view>
+</view>
+
+<view class="actions">
+  <button class="btn btn-primary btn-block" bindtap="confirmPayment">确认支付</button>
+  <button class="btn btn-secondary btn-block" bindtap="viewSchedule">查看课程安排</button>
+</view>
+
+<view class="tips">
+  <text class="tip-title">温馨提示</text>
+  <text class="tip-desc">请提前10分钟到馆做好准备,如需取消请提前24小时联系。</text>
+</view>

@@ -1,0 +1,1017 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>岩馆 - 攀岩爱好者必备</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #FF6B35;
+      --primary-dark: #E55A2B;
+      --secondary: #2D3436;
+      --background: #F8F9FA;
+      --card-bg: #FFFFFF;
+      --border: #E9ECEF;
+      --text-primary: #212529;
+      --text-secondary: #6C757D;
+      --text-placeholder: #ADB5BD;
+      --success: #28A745;
+      --warning: #FFC107;
+      --error: #DC3545;
+      --info: #17A2B8;
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      --ease-out: cubic-bezier(0.25, 0.46, 0.45, 0.94);
+    }
+    * { margin: 0; padding: 0; box-sizing: border-box; }
+    body {
+      font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+      background: linear-gradient(135deg, #1a1a2e 0%, #16213e 100%);
+      min-height: 100vh;
+      display: flex;
+      justify-content: center;
+      align-items: flex-start;
+      padding: 40px 20px;
+    }
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--background);
+      border-radius: 40px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 50px 100px rgba(0,0,0,0.5), 0 0 0 8px #2D3436;
+    }
+    .status-bar {
+      height: 44px;
+      background: var(--card-bg);
+      display: flex;
+      justify-content: center;
+      align-items: flex-end;
+      padding-bottom: 8px;
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--text-primary);
+    }
+    .page {
+      height: calc(100% - 44px - 56px);
+      overflow-y: auto;
+      overflow-x: hidden;
+      background: var(--background);
+    }
+    .page::-webkit-scrollbar { display: none; }
+    .page.active { display: block; }
+    .page:not(.active) { display: none; }
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: 56px;
+      background: var(--card-bg);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+      border-top: 1px solid var(--border);
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      cursor: pointer;
+      padding: 8px 16px;
+      transition: all 0.2s var(--ease-out);
+    }
+    .tab-item svg { width: 24px; height: 24px; fill: var(--text-secondary); transition: fill 0.2s var(--ease-out); }
+    .tab-item span { font-size: 10px; color: var(--text-secondary); transition: color 0.2s var(--ease-out); }
+    .tab-item.active svg { fill: var(--primary); }
+    .tab-item.active span { color: var(--primary); }
+    .page-header { padding: var(--space-4); background: var(--card-bg); }
+    .page-header h1 { font-size: 24px; font-weight: 700; color: var(--secondary); }
+    .user-welcome {
+      background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%);
+      margin: var(--space-4);
+      border-radius: var(--radius-md);
+      padding: var(--space-6);
+      color: white;
+    }
+    .user-welcome .greeting { font-size: 14px; opacity: 0.9; }
+    .user-welcome .name { font-size: 22px; font-weight: 700; margin: var(--space-1) 0 var(--space-4); }
+    .member-card {
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-sm);
+      padding: var(--space-3);
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .member-card .label { font-size: 12px; opacity: 0.8; }
+    .member-card .value { font-size: 16px; font-weight: 600; }
+    .member-card .days { font-size: 24px; font-weight: 700; }
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: var(--space-3);
+      padding: 0 var(--space-4);
+      margin: var(--space-6) 0;
+    }
+    .quick-action { display: flex; flex-direction: column; align-items: center; gap: var(--space-2); cursor: pointer; }
+    .quick-action .icon {
+      width: 48px;
+      height: 48px;
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      transition: transform 0.2s var(--ease-out);
+    }
+    .quick-action:hover .icon { transform: translateY(-2px); }
+    .quick-action .icon svg { width: 24px; height: 24px; fill: var(--primary); }
+    .quick-action span { font-size: 12px; color: var(--text-secondary); }
+    .section { padding: 0 var(--space-4); margin-bottom: var(--space-6); }
+    .section-header { display: flex; justify-content: space-between; align-items: center; margin-bottom: var(--space-3); }
+    .section-header h2 { font-size: 16px; font-weight: 600; color: var(--secondary); }
+    .section-header a { font-size: 12px; color: var(--primary); text-decoration: none; }
+    .class-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: var(--space-3);
+    }
+    .class-card .coach-info { display: flex; align-items: center; gap: var(--space-3); margin-bottom: var(--space-3); }
+    .coach-avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6B35, #FF8E53);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 600;
+      font-size: 16px;
+    }
+    .coach-details .name { font-size: 16px; font-weight: 600; color: var(--text-primary); }
+    .coach-details .type { font-size: 12px; color: var(--text-secondary); }
+    .class-card .class-time { display: flex; align-items: center; gap: var(--space-2); font-size: 14px; color: var(--text-secondary); }
+    .class-card .class-time svg { width: 16px; height: 16px; fill: var(--text-secondary); }
+    .data-summary { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); }
+    .data-card { background: var(--card-bg); border-radius: var(--radius-md); padding: var(--space-4); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .data-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: var(--space-1); }
+    .data-card .value { font-size: 24px; font-weight: 700; color: var(--primary); }
+    .data-card .unit { font-size: 14px; color: var(--text-secondary); font-weight: 400; }
+    .data-card .trend { font-size: 12px; color: var(--success); margin-top: var(--space-1); }
+    .tab-scroll { display: flex; gap: var(--space-2); padding: 0 var(--space-4) var(--space-4); overflow-x: auto; }
+    .tab-scroll::-webkit-scrollbar { display: none; }
+    .filter-tab {
+      padding: var(--space-2) var(--space-4);
+      background: var(--card-bg);
+      border-radius: 20px;
+      font-size: 14px;
+      color: var(--text-secondary);
+      white-space: nowrap;
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out);
+      border: 1px solid var(--border);
+    }
+    .filter-tab.active { background: var(--primary); color: white; border-color: var(--primary); }
+    .calendar-strip {
+      display: flex;
+      gap: var(--space-2);
+      padding: var(--space-4);
+      background: var(--card-bg);
+      overflow-x: auto;
+    }
+    .calendar-strip::-webkit-scrollbar { display: none; }
+    .calendar-day {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: var(--space-2) var(--space-3);
+      border-radius: var(--radius-sm);
+      cursor: pointer;
+      transition: all 0.2s var(--ease-out);
+      min-width: 48px;
+    }
+    .calendar-day:hover { background: var(--background); }
+    .calendar-day.active { background: var(--primary); color: white; }
+    .calendar-day .weekday { font-size: 12px; color: var(--text-secondary); }
+    .calendar-day.active .weekday { color: rgba(255,255,255,0.8); }
+    .calendar-day .date { font-size: 16px; font-weight: 600; margin-top: var(--space-1); }
+    .calendar-day .dots { display: flex; gap: 2px; margin-top: var(--space-1); }
+    .calendar-day .dot { width: 4px; height: 4px; border-radius: 50%; background: var(--primary); }
+    .calendar-day.active .dot { background: white; }
+    .coach-list { padding: var(--space-4); }
+    .coach-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: var(--space-4);
+      box-shadow: 0 2px 8px rgba(0,0,0,0.06);
+      margin-bottom: var(--space-3);
+      display: flex;
+      gap: var(--space-4);
+    }
+    .coach-card .avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #FF6B35, #FF8E53);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-weight: 700;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .coach-card .info { flex: 1; }
+    .coach-card .name { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-1); }
+    .coach-card .certification { display: flex; align-items: center; gap: var(--space-2); margin-bottom: var(--space-2); }
+    .coach-card .badge { font-size: 10px; background: #FFF3E0; color: var(--primary); padding: 2px 6px; border-radius: 4px; }
+    .coach-card .rating { display: flex; align-items: center; gap: var(--space-1); font-size: 12px; color: var(--text-secondary); }
+    .coach-card .rating svg { width: 12px; height: 12px; fill: #FFD700; }
+    .coach-card .available-time { font-size: 14px; color: var(--text-secondary); }
+    .coach-card .available-time span { color: var(--primary); font-weight: 500; }
+    .coach-card .book-btn {
+      background: var(--primary);
+      color: white;
+      border: none;
+      border-radius: var(--radius-sm);
+      padding: var(--space-2) var(--space-4);
+      font-size: 14px;
+      font-weight: 500;
+      cursor: pointer;
+      transition: background 0.2s var(--ease-out);
+      align-self: center;
+    }
+    .coach-card .book-btn:hover { background: var(--primary-dark); }
+    .stats-grid { display: grid; grid-template-columns: repeat(2, 1fr); gap: var(--space-3); padding: var(--space-4); }
+    .stat-card { background: var(--card-bg); border-radius: var(--radius-md); padding: var(--space-4); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .stat-card .label { font-size: 12px; color: var(--text-secondary); margin-bottom: var(--space-2); }
+    .stat-card .value { font-size: 32px; font-weight: 700; color: var(--primary); }
+    .stat-card .value span { font-size: 14px; font-weight: 400; color: var(--text-secondary); }
+    .stat-card .change { font-size: 12px; margin-top: var(--space-1); }
+    .stat-card .change.up { color: var(--success); }
+    .stat-card .change.down { color: var(--error); }
+    .chart-card { background: var(--card-bg); border-radius: var(--radius-md); padding: var(--space-4); margin: 0 var(--space-4) var(--space-4); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .chart-card h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-4); }
+    .chart-placeholder { height: 180px; display: flex; align-items: flex-end; gap: var(--space-2); padding-top: var(--space-4); }
+    .chart-bar { flex: 1; background: linear-gradient(180deg, var(--primary) 0%, #FF8E53 100%); border-radius: 4px 4px 0 0; position: relative; }
+    .chart-bar span { position: absolute; bottom: -20px; left: 50%; transform: translateX(-50%); font-size: 10px; color: var(--text-secondary); }
+    .chart-bar.highlight { background: var(--primary); }
+    .ranking-card { background: var(--card-bg); border-radius: var(--radius-md); padding: var(--space-4); margin: 0 var(--space-4) var(--space-4); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .ranking-card h3 { font-size: 16px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-4); display: flex; justify-content: space-between; align-items: center; }
+    .ranking-card h3 a { font-size: 12px; color: var(--primary); text-decoration: none; }
+    .ranking-item { display: flex; align-items: center; gap: var(--space-3); padding: var(--space-3) 0; border-bottom: 1px solid var(--border); }
+    .ranking-item:last-child { border-bottom: none; }
+    .ranking-item .rank { width: 24px; height: 24px; border-radius: 50%; background: var(--background); display: flex; align-items: center; justify-content: center; font-size: 12px; font-weight: 600; color: var(--text-secondary); }
+    .ranking-item .rank.top { background: linear-gradient(135deg, #FFD700, #FFA500); color: white; }
+    .ranking-item .avatar { width: 36px; height: 36px; border-radius: 50%; background: linear-gradient(135deg, var(--primary), #FF8E53); display: flex; align-items: center; justify-content: center; color: white; font-weight: 600; font-size: 14px; }
+    .ranking-item .info { flex: 1; }
+    .ranking-item .name { font-size: 14px; font-weight: 500; color: var(--text-primary); }
+    .ranking-item .detail { font-size: 12px; color: var(--text-secondary); }
+    .ranking-item .value { font-size: 16px; font-weight: 600; color: var(--primary); }
+    .competition-card { background: var(--card-bg); border-radius: var(--radius-md); overflow: hidden; margin: var(--space-4); box-shadow: 0 2px 8px rgba(0,0,0,0.06); }
+    .competition-card .cover { height: 160px; background: linear-gradient(135deg, #2D3436 0%, #636E72 100%); position: relative; }
+    .competition-card .status { position: absolute; top: var(--space-3); right: var(--space-3); background: var(--primary); color: white; padding: var(--space-1) var(--space-3); border-radius: 12px; font-size: 12px; font-weight: 500; }
+    .competition-card .status.ended { background: var(--text-secondary); }
+    .competition-card .content { padding: var(--space-4); }
+    .competition-card .title { font-size: 18px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-2); }
+    .competition-card .info-row { display: flex; align-items: center; gap: var(--space-2); font-size: 14px; color: var(--text-secondary); margin-bottom: var(--space-2); }
+    .competition-card .info-row svg { width: 16px; height: 16px; fill: var(--text-secondary); }
+    .competition-card .footer { display: flex; justify-content: space-between; align-items: center; margin-top: var(--space-3); padding-top: var(--space-3); border-top: 1px solid var(--border); }
+    .competition-card .price { font-size: 20px; font-weight: 700; color: var(--primary); }
+    .competition-card .price span { font-size: 14px; font-weight: 400; color: var(--text-secondary); }
+    .competition-card .register-btn { background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); padding: var(--space-2) var(--space-6); font-size: 14px; font-weight: 500; cursor: pointer; transition: background 0.2s var(--ease-out); }
+    .competition-card .register-btn:hover { background: var(--primary-dark); }
+    .competition-card .register-btn.registered { background: var(--success); }
+    .profile-header { background: linear-gradient(135deg, var(--primary) 0%, var(--primary-dark) 100%); padding: var(--space-6) var(--space-4); color: white; }
+    .profile-info { display: flex; align-items: center; gap: var(--space-4); }
+    .profile-avatar { width: 72px; height: 72px; border-radius: 50%; background: rgba(255,255,255,0.2); display: flex; align-items: center; justify-content: center; font-size: 32px; font-weight: 700; border: 3px solid rgba(255,255,255,0.3); }
+    .profile-details .name { font-size: 22px; font-weight: 700; margin-bottom: var(--space-1); }
+    .profile-details .member-type { font-size: 14px; opacity: 0.9; }
+    .profile-menu { padding: var(--space-4); }
+    .menu-group { background: var(--card-bg); border-radius: var(--radius-md); box-shadow: 0 2px 8px rgba(0,0,0,0.06); margin-bottom: var(--space-4); overflow: hidden; }
+    .menu-item { display: flex; align-items: center; padding: var(--space-4); border-bottom: 1px solid var(--border); cursor: pointer; transition: background 0.2s var(--ease-out); }
+    .menu-item:last-child { border-bottom: none; }
+    .menu-item:hover { background: var(--background); }
+    .menu-item .icon { width: 40px; height: 40px; border-radius: var(--radius-sm); background: var(--background); display: flex; align-items: center; justify-content: center; margin-right: var(--space-3); }
+    .menu-item .icon svg { width: 20px; height: 20px; fill: var(--primary); }
+    .menu-item .label { flex: 1; font-size: 16px; color: var(--text-primary); }
+    .menu-item .arrow { width: 20px; height: 20px; fill: var(--text-placeholder); }
+    .menu-item .badge { background: var(--error); color: white; font-size: 10px; padding: 2px 6px; border-radius: 10px; margin-right: var(--space-2); }
+    .toast { position: fixed; top: 100px; left: 50%; transform: translateX(-50%) translateY(-20px); background: var(--secondary); color: white; padding: var(--space-3) var(--space-6); border-radius: var(--radius-sm); font-size: 14px; opacity: 0; transition: all 0.3s var(--ease-out); z-index: 1000; pointer-events: none; }
+    .toast.show { opacity: 1; transform: translateX(-50%) translateY(0); }
+    .modal-overlay { position: fixed; top: 0; left: 0; right: 0; bottom: 0; background: rgba(0,0,0,0.5); display: flex; justify-content: center; align-items: center; z-index: 2000; opacity: 0; visibility: hidden; transition: all 0.3s var(--ease-out); }
+    .modal-overlay.show { opacity: 1; visibility: visible; }
+    .modal { background: var(--card-bg); border-radius: var(--radius-lg); padding: var(--space-6); width: 280px; text-align: center; transform: scale(0.8); transition: transform 0.3s var(--ease-out); }
+    .modal-overlay.show .modal { transform: scale(1); }
+    .modal .check-icon { width: 64px; height: 64px; background: linear-gradient(135deg, var(--success), #34CE57); border-radius: 50%; display: flex; align-items: center; justify-content: center; margin: 0 auto var(--space-4); }
+    .modal .check-icon svg { width: 32px; height: 32px; fill: white; }
+    .modal h3 { font-size: 20px; font-weight: 600; color: var(--text-primary); margin-bottom: var(--space-2); }
+    .modal p { font-size: 14px; color: var(--text-secondary); margin-bottom: var(--space-4); }
+    .modal .record { background: var(--background); border-radius: var(--radius-sm); padding: var(--space-3); margin-bottom: var(--space-4); text-align: left; }
+    .modal .record-row { display: flex; justify-content: space-between; font-size: 14px; color: var(--text-secondary); margin-bottom: var(--space-2); }
+    .modal .record-row:last-child { margin-bottom: 0; }
+    .modal .record-row span:last-child { color: var(--text-primary); font-weight: 500; }
+    .modal .btn { background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); padding: var(--space-3) var(--space-8); font-size: 16px; font-weight: 500; cursor: pointer; transition: background 0.2s var(--ease-out); }
+    .modal .btn:hover { background: var(--primary-dark); }
+    .modal .btn-secondary { background: var(--background); color: var(--text-primary); margin-right: var(--space-3); }
+    .modal .btn-secondary:hover { background: var(--border); }
+    .modal .form-group { margin-bottom: var(--space-4); text-align: left; }
+    .modal .form-group label { display: block; font-size: 14px; color: var(--text-secondary); margin-bottom: var(--space-2); }
+    .modal .form-group input { width: 100%; padding: var(--space-3); border: 1px solid var(--border); border-radius: var(--radius-sm); font-size: 16px; transition: border-color 0.2s; }
+    .modal .form-group input:focus { outline: none; border-color: var(--primary); }
+    .add-record-btn { position: fixed; bottom: 80px; right: calc(50% - 160px + 20px); background: var(--primary); color: white; border: none; border-radius: 50%; width: 56px; height: 56px; font-size: 24px; cursor: pointer; box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4); transition: transform 0.2s var(--ease-out); z-index: 100; }
+    .add-record-btn:hover { transform: scale(1.1); }
+    .history-list { max-height: 200px; overflow-y: auto; }
+    .history-item { display: flex; justify-content: space-between; padding: var(--space-2) 0; border-bottom: 1px solid var(--border); font-size: 14px; }
+    .history-item:last-child { border-bottom: none; }
+    .history-item .date { color: var(--text-secondary); }
+    .history-item .detail { color: var(--text-primary); font-weight: 500; }
+  </style>
+</head>
+<body>
+  <div class="phone-frame">
+    <div class="status-bar">9:41</div>
+
+    <!-- Home Page -->
+    <div class="page active" id="page-home">
+      <div class="page-header">
+        <h1>首页</h1>
+      </div>
+      <div class="user-welcome">
+        <div class="greeting">下午好</div>
+        <div class="name">李明</div>
+        <div class="member-card">
+          <div>
+            <div class="label">会员有效期至</div>
+            <div class="value">2026.06.15</div>
+          </div>
+          <div style="text-align: right;">
+            <div class="label">剩余次数</div>
+            <div class="days">32</div>
+          </div>
+        </div>
+      </div>
+      <div class="quick-actions">
+        <div class="quick-action" onclick="switchTab(1)">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg></div>
+          <span>约课</span>
+        </div>
+        <div class="quick-action" onclick="doCheckIn()">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+          <span>打卡</span>
+        </div>
+        <div class="quick-action" onclick="switchTab(3)">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg></div>
+          <span>赛事</span>
+        </div>
+        <div class="quick-action" onclick="switchTab(2);">
+          <div class="icon"><svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg></div>
+          <span>数据</span>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <h2>近期约课</h2>
+          <a href="#" onclick="switchTab(1); return false;">查看全部</a>
+        </div>
+        <div class="class-card">
+          <div class="coach-info">
+            <div class="coach-avatar">张</div>
+            <div class="coach-details">
+              <div class="name">张教练</div>
+              <div class="type">私教课 · 基础攀爬</div>
+            </div>
+          </div>
+          <div class="class-time">
+            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            今天 14:00-15:00
+          </div>
+        </div>
+        <div class="class-card">
+          <div class="coach-info">
+            <div class="coach-avatar">王</div>
+            <div class="coach-details">
+              <div class="name">王教练</div>
+              <div class="type">团课 · 技巧训练</div>
+            </div>
+          </div>
+          <div class="class-time">
+            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8zm.5-13H11v6l5.25 3.15.75-1.23-4.5-2.67z"/></svg>
+            明天 10:00-11:00
+          </div>
+        </div>
+      </div>
+      <div class="section">
+        <div class="section-header">
+          <h2>本周数据</h2>
+          <a href="#" onclick="switchTab(2); return false;">查看全部</a>
+        </div>
+        <div class="data-summary">
+          <div class="data-card">
+            <div class="label">攀爬次数</div>
+            <div class="value">12 <span class="unit">次</span></div>
+            <div class="trend">↑ 20% vs 上周</div>
+          </div>
+          <div class="data-card">
+            <div class="label">训练时长</div>
+            <div class="value">8.5 <span class="unit">小时</span></div>
+            <div class="trend">↑ 15% vs 上周</div>
+          </div>
+          <div class="data-card">
+            <div class="label">消耗卡路里</div>
+            <div class="value">3200 <span class="unit">kcal</span></div>
+            <div class="trend">↑ 25% vs 上周</div>
+          </div>
+          <div class="data-card">
+            <div class="label">最高难度</div>
+            <div class="value">5.12<span class="unit">a</span></div>
+            <div class="trend">突破新纪录！</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Booking Page -->
+    <div class="page" id="page-booking">
+      <div class="page-header">
+        <h1>约课</h1>
+      </div>
+      <div class="tab-scroll">
+        <div class="filter-tab active">全部教练</div>
+        <div class="filter-tab">我的教练</div>
+        <div class="filter-tab">团课</div>
+        <div class="filter-tab">私教课</div>
+      </div>
+      <div style="padding: 0 16px; margin-bottom: 8px;">
+        <div style="font-size: 12px; color: var(--text-secondary);">选择日期</div>
+      </div>
+      <div class="calendar-strip">
+        <div class="calendar-day">
+          <div class="weekday">周一</div>
+          <div class="date">28</div>
+        </div>
+        <div class="calendar-day">
+          <div class="weekday">周二</div>
+          <div class="date">29</div>
+          <div class="dots"><div class="dot"></div></div>
+        </div>
+        <div class="calendar-day active">
+          <div class="weekday">周三</div>
+          <div class="date">30</div>
+          <div class="dots"><div class="dot"></div><div class="dot"></div></div>
+        </div>
+        <div class="calendar-day">
+          <div class="weekday">周四</div>
+          <div class="date">1</div>
+          <div class="dots"><div class="dot"></div></div>
+        </div>
+        <div class="calendar-day">
+          <div class="weekday">周五</div>
+          <div class="date">2</div>
+          <div class="dots"><div class="dot"></div><div class="dot"></div></div>
+        </div>
+        <div class="calendar-day">
+          <div class="weekday">周六</div>
+          <div class="date">3</div>
+          <div class="dots"><div class="dot"></div><div class="dot"></div><div class="dot"></div></div>
+        </div>
+        <div class="calendar-day">
+          <div class="weekday">周日</div>
+          <div class="date">4</div>
+          <div class="dots"><div class="dot"></div></div>
+        </div>
+      </div>
+      <div class="coach-list">
+        <div class="coach-card">
+          <div class="avatar">张</div>
+          <div class="info">
+            <div class="name">张伟教练</div>
+            <div class="certification">
+              <span class="badge">国家级教练</span>
+              <span class="badge">10年经验</span>
+            </div>
+            <div class="rating">
+              <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              4.9 (328条评价)
+            </div>
+            <div class="available-time">今日可约: <span>14:00</span> <span>15:00</span> <span>16:00</span></div>
+          </div>
+          <button class="book-btn" onclick="showToast('预约成功！')">预约</button>
+        </div>
+        <div class="coach-card">
+          <div class="avatar">王</div>
+          <div class="info">
+            <div class="name">王芳教练</div>
+            <div class="certification">
+              <span class="badge">认证教练</span>
+              <span class="badge">5年经验</span>
+            </div>
+            <div class="rating">
+              <svg viewBox="0 0 24 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              4.8 (256条评价)
+            </div>
+            <div class="available-time">今日可约: <span>10:00</span> <span>11:00</span></div>
+          </div>
+          <button class="book-btn" onclick="showToast('预约成功！')">预约</button>
+        </div>
+        <div class="coach-card">
+          <div class="avatar">李</div>
+          <div class="info">
+            <div class="name">李强教练</div>
+            <div class="certification">
+              <span class="badge">资深教练</span>
+              <span class="badge">8年经验</span>
+            </div>
+            <div class="rating">
+              <svg viewBox="0 0 24 24"><path d="M12 17.27L18.18 21l-1.64-7.03L22 9.24l-7.19-.61L12 2 9.19 8.63 2 9.24l5.46 4.73L5.82 21z"/></svg>
+              4.7 (189条评价)
+            </div>
+            <div class="available-time">今日可约: <span>15:00</span> <span>17:00</span> <span>18:00</span></div>
+          </div>
+          <button class="book-btn" onclick="showToast('预约成功！')">预约</button>
+        </div>
+      </div>
+    </div>
+
+    <!-- Data Page -->
+    <div class="page" id="page-data">
+      <div class="page-header" style="display: flex; justify-content: space-between; align-items: center;">
+        <h1>数据</h1>
+        <button onclick="openAddRecordModal()" style="background: var(--primary); color: white; border: none; border-radius: var(--radius-sm); padding: 8px 16px; font-size: 14px; cursor: pointer;">+ 记录</button>
+      </div>
+      <div class="stats-grid">
+        <div class="stat-card">
+          <div class="label">本月攀爬</div>
+          <div class="value">48<span>次</span></div>
+          <div class="change up">↑ 12% vs 上月</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">本月时长</div>
+          <div class="value">32<span>小时</span></div>
+          <div class="change up">↑ 8% vs 上月</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">累计消耗</div>
+          <div class="value">12500<span>kcal</span></div>
+          <div class="change up">↑ 18% vs 上月</div>
+        </div>
+        <div class="stat-card">
+          <div class="label">最高难度</div>
+          <div class="value">5.12<span>a</span></div>
+          <div class="change up">新突破！</div>
+        </div>
+      </div>
+      <div class="chart-card">
+        <h3>本周训练趋势</h3>
+        <div class="chart-placeholder">
+          <div class="chart-bar" style="height: 60%;"><span>一</span></div>
+          <div class="chart-bar" style="height: 80%;"><span>二</span></div>
+          <div class="chart-bar" style="height: 45%;"><span>三</span></div>
+          <div class="chart-bar" style="height: 90%;"><span>四</span></div>
+          <div class="chart-bar" style="height: 70%;"><span>五</span></div>
+          <div class="chart-bar highlight" style="height: 100%;"><span>六</span></div>
+          <div class="chart-bar" style="height: 55%;"><span>日</span></div>
+        </div>
+      </div>
+      <div class="ranking-card">
+        <h3>本月排行榜 <a href="#">查看全部</a></h3>
+        <div class="ranking-item">
+          <div class="rank top">1</div>
+          <div class="avatar">陈</div>
+          <div class="info">
+            <div class="name">陈晓明</div>
+            <div class="detail">本月 72 次攀爬</div>
+          </div>
+          <div class="value">72次</div>
+        </div>
+        <div class="ranking-item">
+          <div class="rank top">2</div>
+          <div class="avatar">林</div>
+          <div class="info">
+            <div class="name">林小琳</div>
+            <div class="detail">本月 68 次攀爬</div>
+          </div>
+          <div class="value">68次</div>
+        </div>
+        <div class="ranking-item">
+          <div class="rank top">3</div>
+          <div class="avatar">张</div>
+          <div class="info">
+            <div class="name">张伟</div>
+            <div class="detail">本月 65 次攀爬</div>
+          </div>
+          <div class="value">65次</div>
+        </div>
+        <div class="ranking-item">
+          <div class="rank">4</div>
+          <div class="avatar">李</div>
+          <div class="info">
+            <div class="name">李明</div>
+            <div class="detail">本月 48 次攀爬</div>
+          </div>
+          <div class="value">48次</div>
+        </div>
+      </div>
+      <div class="chart-card" id="historyCard">
+        <h3>训练记录 <a href="#" onclick="loadTrainingData(); return false;" style="font-size: 12px; color: var(--primary); text-decoration: none; float: right;">刷新</a></h3>
+        <div class="history-list" id="historyList">
+          <p style="text-align: center; color: var(--text-placeholder); font-size: 14px; padding: 20px 0;">暂无训练记录，点击右上角「记录」添加</p>
+        </div>
+      </div>
+    </div>
+
+    <!-- Competition Page -->
+    <div class="page" id="page-competition">
+      <div class="page-header">
+        <h1>赛事</h1>
+      </div>
+      <div class="tab-scroll">
+        <div class="filter-tab active">即将开始</div>
+        <div class="filter-tab">报名中</div>
+        <div class="filter-tab">已结束</div>
+      </div>
+      <div class="competition-card">
+        <div class="cover">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'%3E%3Crect fill='%232D3436' width='400' height='160'/%3E%3Ctext x='200' y='70' text-anchor='middle' fill='%23FF6B35' font-size='24' font-weight='bold'%3E攀岩挑战赛%3C/text%3E%3Ctext x='200' y='100' text-anchor='middle' fill='%23ffffff' font-size='14' opacity='0.8'%3E2026春季赛%3C/text%3E%3C/svg%3E" alt="比赛封面">
+          <div class="status">报名中</div>
+        </div>
+        <div class="content">
+          <div class="title">2026春季攀岩挑战赛</div>
+          <div class="info-row">
+            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>
+            2026年5月15日 - 5月17日
+          </div>
+          <div class="info-row">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            北京岩馆·国家体育场店
+          </div>
+          <div class="info-row">
+            <svg viewBox="0 0 24 24"><path d="M16 11c1.66 0 2.99-1.34 2.99-3S17.66 5 16 5c-1.66 0-3 1.34-3 3s1.34 3 3 3zm-8 0c1.66 0 2.99-1.34 2.99-3S9.66 5 8 5C6.34 5 5 6.34 5 8s1.34 3 3 3zm0 2c-2.33 0-7 1.17-7 3.5V19h14v-2.5c0-2.33-4.67-3.5-7-3.5zm8 0c-.29 0-.62.02-.97.05 1.16.84 1.97 1.97 1.97 3.45V19h6v-2.5c0-2.33-4.67-3.5-7-3.5z"/></svg>
+            已有 128 人报名 / 限200人
+          </div>
+          <div class="footer">
+            <div class="price">¥299 <span>起</span></div>
+            <button class="register-btn" onclick="this.classList.toggle('registered'); if(this.classList.contains('registered')){ this.textContent='已报名'; showToast('报名成功！'); }else{ this.textContent='立即报名'; }">立即报名</button>
+          </div>
+        </div>
+      </div>
+      <div class="competition-card">
+        <div class="cover">
+          <img src="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 400 160'%3E%3Crect fill='%23636E72' width='400' height='160'/%3E%3Ctext x='200' y='70' text-anchor='middle' fill='%23FF6B35' font-size='24' font-weight='bold'%3E青少年赛%3C/text%3E%3Ctext x='200' y='100' text-anchor='middle' fill='%23ffffff' font-size='14' opacity='0.8'%3E入门组专项%3C/text%3E%3C/svg%3E" alt="比赛封面">
+          <div class="status ended">已结束</div>
+        </div>
+        <div class="content">
+          <div class="title">青少年攀岩入门赛</div>
+          <div class="info-row">
+            <svg viewBox="0 0 24 24"><path d="M11.99 2C6.47 2 2 6.48 2 12s4.47 10 9.99 10C17.52 22 22 17.52 22 12S17.52 2 11.99 2zM12 20c-4.42 0-8-3.58-8-8s3.58-8 8-8 8 3.58 8 8-3.58 8-8 8z"/></svg>
+            2026年4月20日 - 4月21日
+          </div>
+          <div class="info-row">
+            <svg viewBox="0 0 24 24"><path d="M12 2C8.13 2 5 5.13 5 9c0 5.25 7 13 7 13s7-7.75 7-13c0-3.87-3.13-7-7-7zm0 9.5c-1.38 0-2.5-1.12-2.5-2.5s1.12-2.5 2.5-2.5 2.5 1.12 2.5 2.5-1.12 2.5-2.5 2.5z"/></svg>
+            上海岩馆·浦东店
+          </div>
+          <div class="footer">
+            <div class="price">¥199 <span>起</span></div>
+            <button class="register-btn registered" onclick="showToast('您已报名此赛事')">查看详情</button>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Profile Page -->
+    <div class="page" id="page-profile">
+      <div class="profile-header">
+        <div class="profile-info">
+          <div class="profile-avatar">李</div>
+          <div class="profile-details">
+            <div class="name">李明</div>
+            <div class="member-type">👑 年度会员</div>
+          </div>
+        </div>
+      </div>
+      <div class="profile-menu">
+        <div class="menu-group">
+          <div class="menu-item">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M20 7h-4V4c0-1.1-.9-2-2-2h-4c-1.1 0-2 .9-2 2v3H4c-1.1 0-2 .9-2 2v11c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V9c0-1.1-.9-2-2-2zM10 4h4v3h-4V4z"/></svg></div>
+            <div class="label">我的会员卡</div>
+            <svg class="arrow" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+          <div class="menu-item">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11z"/></svg></div>
+            <div class="label">约课记录</div>
+            <span class="badge">3</span>
+            <svg class="arrow" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+          <div class="menu-item">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M21 18v1c0 1.1-.9 2-2 2H5c-1.11 0-2-.9-2-2V5c0-1.1.89-2 2-2h14c1.1 0 2 .9 2 2v1h-9c-1.11 0-2 .9-2 2v8c0 1.1.89 2 2 2h9zm-9-2h10V8H12v8zm4-2.5c-.83 0-1.5-.67-1.5-1.5s.67-1.5 1.5-1.5 1.5.67 1.5 1.5-.67 1.5-1.5 1.5z"/></svg></div>
+            <div class="label">钱包/套餐</div>
+            <svg class="arrow" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+        </div>
+        <div class="menu-group">
+          <div class="menu-item">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-2h2v2zm0-4h-2V7h2v6z"/></svg></div>
+            <div class="label">帮助中心</div>
+            <svg class="arrow" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+          <div class="menu-item">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M19.14 12.94c.04-.31.06-.63.06-.94 0-.31-.02-.63-.06-.94l2.03-1.58c.18-.14.23-.41.12-.61l-1.92-3.32c-.12-.22-.37-.29-.59-.22l-2.39.96c-.5-.38-1.03-.7-1.62-.94l-.36-2.54c-.04-.24-.24-.41-.48-.41h-3.84c-.24 0-.43.17-.47.41l-.36 2.54c-.59.24-1.13.57-1.62.94l-2.39-.96c-.22-.08-.47 0-.59.22L2.74 8.87c-.12.21-.08.47.12.61l2.03 1.58c-.04.31-.06.63-.06.94s.02.63.06.94l-2.03 1.58c-.18.14-.23.41-.12.61l1.92 3.32c.12.22.37.29.59.22l2.39-.96c.5.38 1.03.7 1.62.94l.36 2.54c.05.24.24.41.48.41h3.84c.24 0 .44-.17.47-.41l.36-2.54c.59-.24 1.13-.56 1.62-.94l2.39.96c.22.08.47 0 .59-.22l1.92-3.32c.12-.22.07-.47-.12-.61l-2.01-1.58zM12 15.6c-1.98 0-3.6-1.62-3.6-3.6s1.62-3.6 3.6-3.6 3.6 1.62 3.6 3.6-1.62 3.6-3.6 3.6z"/></svg></div>
+            <div class="label">设置</div>
+            <svg class="arrow" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+          <div class="menu-item">
+            <div class="icon"><svg viewBox="0 0 24 24"><path d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm-2 15l-5-5 1.41-1.41L10 14.17l7.59-7.59L19 8l-9 9z"/></svg></div>
+            <div class="label">关于我们</div>
+            <svg class="arrow" viewBox="0 0 24 24"><path d="M10 6L8.59 7.41 13.17 12l-4.58 4.59L10 18l6-6z"/></svg>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <!-- Tab Bar -->
+    <div class="tab-bar">
+      <div class="tab-item active" onclick="switchTab(0)">
+        <svg viewBox="0 0 24 24"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+        <span>首页</span>
+      </div>
+      <div class="tab-item" onclick="switchTab(1)">
+        <svg viewBox="0 0 24 24"><path d="M19 3h-1V1h-2v2H8V1H6v2H5c-1.11 0-1.99.9-1.99 2L3 19c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zm0 16H5V8h14v11zM9 10H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+        <span>约课</span>
+      </div>
+      <div class="tab-item" onclick="switchTab(2)">
+        <svg viewBox="0 0 24 24"><path d="M3.5 18.49l6-6.01 4 4L22 6.92l-1.41-1.41-7.09 7.97-4-4L2 16.99z"/></svg>
+        <span>数据</span>
+      </div>
+      <div class="tab-item" onclick="switchTab(3)">
+        <svg viewBox="0 0 24 24"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2z"/></svg>
+        <span>赛事</span>
+      </div>
+      <div class="tab-item" onclick="switchTab(4)">
+        <svg viewBox="0 0 24 24"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+        <span>我的</span>
+      </div>
+    </div>
+
+    <!-- Toast -->
+    <div class="toast" id="toast"></div>
+
+    <!-- Check-in Modal -->
+    <div class="modal-overlay" id="checkinModal">
+      <div class="modal">
+        <div class="check-icon">
+          <svg viewBox="0 0 24 24"><path d="M9 16.17L4.83 12l-1.42 1.41L9 19 21 7l-1.41-1.41z"/></svg>
+        </div>
+        <h3>打卡成功！</h3>
+        <p>今日训练已记录，继续加油 💪</p>
+        <div class="record">
+          <div class="record-row"><span>打卡时间</span><span id="checkinTime">--:--</span></div>
+          <div class="record-row"><span>累计打卡</span><span id="checkinCount">0</span> 天</div>
+        </div>
+        <button class="btn" onclick="closeCheckinModal()">确定</button>
+      </div>
+    </div>
+
+    <!-- Add Training Record Modal -->
+    <div class="modal-overlay" id="addRecordModal">
+      <div class="modal" style="width: 300px;">
+        <h3 style="margin-bottom: 16px;">记录训练</h3>
+        <div class="form-group">
+          <label>攀爬次数</label>
+          <input type="number" id="recordClimbs" placeholder="如：10" min="0">
+        </div>
+        <div class="form-group">
+          <label>训练时长（分钟）</label>
+          <input type="number" id="recordDuration" placeholder="如：60" min="0">
+        </div>
+        <div class="form-group">
+          <label>消耗卡路里</label>
+          <input type="number" id="recordCalories" placeholder="如：500" min="0">
+        </div>
+        <div class="form-group">
+          <label>最高难度（如 5.11a）</label>
+          <input type="text" id="recordGrade" placeholder="如：5.11a">
+        </div>
+        <div style="display: flex; justify-content: center; margin-top: 24px;">
+          <button class="btn btn-secondary" onclick="closeAddRecordModal()">取消</button>
+          <button class="btn" onclick="saveTrainingRecord()">保存</button>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    function switchTab(index) {
+      const pages = document.querySelectorAll('.page');
+      const tabs = document.querySelectorAll('.tab-item');
+      
+      pages.forEach((page, i) => {
+        page.classList.remove('active');
+        if (i === index) {
+          page.classList.add('active');
+        }
+      });
+      
+      tabs.forEach((tab, i) => {
+        tab.classList.remove('active');
+        if (i === index) {
+          tab.classList.add('active');
+        }
+      });
+    }
+
+    function showToast(message) {
+      const toast = document.getElementById('toast');
+      toast.textContent = message;
+      toast.classList.add('show');
+      setTimeout(() => {
+        toast.classList.remove('show');
+      }, 2000);
+    }
+
+    function doCheckIn() {
+      const now = new Date();
+      const timeStr = now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0');
+      const dateStr = now.getFullYear() + '-' + (now.getMonth() + 1).toString().padStart(2, '0') + '-' + now.getDate().toString().padStart(2, '0');
+      
+      // Get or init check-in records
+      let records = JSON.parse(localStorage.getItem('checkinRecords') || '[]');
+      
+      // Check if already checked in today
+      const todayKey = dateStr;
+      const alreadyChecked = records.some(r => r.date === todayKey);
+      
+      if (alreadyChecked) {
+        showToast('今日已打卡，明日再来吧！');
+        return;
+      }
+      
+      // Add new record
+      records.push({ date: todayKey, time: timeStr });
+      localStorage.setItem('checkinRecords', JSON.stringify(records));
+      
+      // Update modal display
+      document.getElementById('checkinTime').textContent = timeStr;
+      document.getElementById('checkinCount').textContent = records.length;
+      
+      // Show modal
+      document.getElementById('checkinModal').classList.add('show');
+    }
+
+    function closeCheckinModal() {
+      document.getElementById('checkinModal').classList.remove('show');
+    }
+
+    // Calendar day selection
+    document.querySelectorAll('.calendar-day').forEach(day => {
+      day.addEventListener('click', function() {
+        document.querySelectorAll('.calendar-day').forEach(d => d.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Filter tab selection
+    document.querySelectorAll('.filter-tab').forEach(tab => {
+      tab.addEventListener('click', function() {
+        this.parentElement.querySelectorAll('.filter-tab').forEach(t => t.classList.remove('active'));
+        this.classList.add('active');
+      });
+    });
+
+    // Training Record Functions
+    function openAddRecordModal() {
+      document.getElementById('addRecordModal').classList.add('show');
+    }
+
+    function closeAddRecordModal() {
+      document.getElementById('addRecordModal').classList.remove('show');
+      // Clear inputs
+      document.getElementById('recordClimbs').value = '';
+      document.getElementById('recordDuration').value = '';
+      document.getElementById('recordCalories').value = '';
+      document.getElementById('recordGrade').value = '';
+    }
+
+    function saveTrainingRecord() {
+      const climbs = parseInt(document.getElementById('recordClimbs').value) || 0;
+      const duration = parseInt(document.getElementById('recordDuration').value) || 0;
+      const calories = parseInt(document.getElementById('recordCalories').value) || 0;
+      const grade = document.getElementById('recordGrade').value.trim();
+
+      if (climbs === 0 && duration === 0 && calories === 0) {
+        showToast('请至少填写一项训练数据');
+        return;
+      }
+
+      const now = new Date();
+      const record = {
+        date: now.toISOString().split('T')[0],
+        time: now.getHours().toString().padStart(2, '0') + ':' + now.getMinutes().toString().padStart(2, '0'),
+        climbs: climbs,
+        duration: duration,
+        calories: calories,
+        grade: grade
+      };
+
+      let records = JSON.parse(localStorage.getItem('trainingRecords') || '[]');
+      records.unshift(record); // Add to beginning
+      localStorage.setItem('trainingRecords', JSON.stringify(records));
+
+      closeAddRecordModal();
+      showToast('训练记录已保存！');
+      loadTrainingData();
+      updateStats();
+    }
+
+    function loadTrainingData() {
+      const records = JSON.parse(localStorage.getItem('trainingRecords') || '[]');
+      const historyList = document.getElementById('historyList');
+
+      if (records.length === 0) {
+        historyList.innerHTML = '<p style="text-align: center; color: var(--text-placeholder); font-size: 14px; padding: 20px 0;">暂无训练记录，点击右上角「记录」添加</p>';
+        return;
+      }
+
+      historyList.innerHTML = records.slice(0, 10).map(r => {
+        const detail = [];
+        if (r.climbs) detail.push(r.climbs + '次攀爬');
+        if (r.duration) detail.push(r.duration + '分钟');
+        if (r.calories) detail.push(r.calories + 'kcal');
+        if (r.grade) detail.push('难度' + r.grade);
+        return `<div class="history-item">
+          <span class="date">${r.date} ${r.time}</span>
+          <span class="detail">${detail.join(' / ')}</span>
+        </div>`;
+      }).join('');
+    }
+
+    function updateStats() {
+      const records = JSON.parse(localStorage.getItem('trainingRecords') || '[]');
+      const now = new Date();
+      const currentMonth = now.getMonth();
+      const currentYear = now.getFullYear();
+
+      // Filter this month's records
+      const monthRecords = records.filter(r => {
+        const d = new Date(r.date);
+        return d.getMonth() === currentMonth && d.getFullYear() === currentYear;
+      });
+
+      // Calculate totals
+      const totalClimbs = monthRecords.reduce((sum, r) => sum + (r.climbs || 0), 0);
+      const totalDuration = monthRecords.reduce((sum, r) => sum + (r.duration || 0), 0);
+      const totalCalories = monthRecords.reduce((sum, r) => sum + (r.calories || 0), 0);
+
+      // Find max grade
+      const gradeMap = { '5.10a': 1, '5.10b': 2, '5.10c': 3, '5.10d': 4, '5.11a': 5, '5.11b': 6, '5.11c': 7, '5.11d': 8, '5.12a': 9, '5.12b': 10, '5.12c': 11, '5.12d': 12, '5.13a': 13, '5.13b': 14, '5.13c': 15, '5.13d': 16, '5.14a': 17, '5.14b': 18, '5.14c': 19, '5.14d': 20 };
+      let maxGrade = '';
+      let maxGradeValue = 0;
+      monthRecords.forEach(r => {
+        if (r.grade && gradeMap[r.grade] > maxGradeValue) {
+          maxGradeValue = gradeMap[r.grade];
+          maxGrade = r.grade;
+        }
+      });
+
+      // Update DOM
+      const statCards = document.querySelectorAll('#page-data .stat-card');
+      if (statCards[0]) statCards[0].querySelector('.value').innerHTML = totalClimbs + '<span>次</span>';
+      if (statCards[1]) statCards[1].querySelector('.value').innerHTML = (totalDuration / 60).toFixed(1) + '<span>小时</span>';
+      if (statCards[2]) statCards[2].querySelector('.value').innerHTML = totalCalories + '<span>kcal</span>';
+      if (statCards[3]) statCards[3].querySelector('.value').innerHTML = (maxGrade || '—') + '<span>' + (maxGrade ? 'a' : '') + '</span>';
+    }
+
+    // Load training data when switching to data tab
+    const originalSwitchTab = switchTab;
+    switchTab = function(index) {
+      originalSwitchTab(index);
+      if (index === 2) { // Data page
+        loadTrainingData();
+        updateStats();
+      }
+    };
+
+    // Initial load
+    document.addEventListener('DOMContentLoaded', function() {
+      loadTrainingData();
+      updateStats();
+    });
+  </script>
+</body>
+</html>

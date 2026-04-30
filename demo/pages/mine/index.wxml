@@ -1,0 +1,83 @@
+<view class="profile-header">
+  <view class="profile-avatar">岩</view>
+  <view class="profile-info">
+    <text class="profile-name">{{userInfo.name}}</text>
+    <text class="profile-phone">{{userInfo.phone}}</text>
+    <text class="member-badge">{{userInfo.memberType}}</text>
+  </view>
+</view>
+
+<view class="member-card-container">
+  <view class="member-card-content">
+    <view class="member-card-header">
+      <text class="member-type">季卡 - 进阶会员</text>
+      <text class="member-expiry">有效期至 {{userInfo.memberExpiry}}</text>
+    </view>
+    <view class="member-card-stats">
+      <view class="member-stat">
+        <text class="member-stat-value">{{userInfo.remainingHours}}</text>
+        <text class="member-stat-label">剩余课时</text>
+      </view>
+      <view class="member-stat">
+        <text class="member-stat-value">{{userInfo.monthlyCheckins}}</text>
+        <text class="member-stat-label">本月打卡</text>
+      </view>
+      <view class="member-stat">
+        <text class="member-stat-value">0</text>
+        <text class="member-stat-label">账户余额</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="menu-section">
+  <text class="menu-title">我的课程</text>
+  <view class="menu-item" bindtap="navigateTo" data-page="bookings">
+    <view class="menu-icon orange">约</view>
+    <text class="menu-label">我的约课</text>
+    <view class="menu-badge">3</view>
+    <text class="menu-arrow">></text>
+  </view>
+  <view class="menu-item" bindtap="navigateTo" data-page="history">
+    <view class="menu-icon green">记</view>
+    <text class="menu-label">约课记录</text>
+    <text class="menu-arrow">></text>
+  </view>
+  <view class="menu-item" bindtap="navigateTo" data-page="packages">
+    <view class="menu-icon blue">套</view>
+    <text class="menu-label">我的套餐</text>
+    <text class="menu-arrow">></text>
+  </view>
+</view>
+
+<view class="menu-section">
+  <text class="menu-title">赛事与活动</text>
+  <view class="menu-item" bindtap="navigateTo" data-page="my-competitions">
+    <view class="menu-icon purple">赛</view>
+    <text class="menu-label">我的报名</text>
+    <text class="menu-arrow">></text>
+  </view>
+  <view class="menu-item" bindtap="navigateTo" data-page="coupons">
+    <view class="menu-icon yellow">券</view>
+    <text class="menu-label">优惠券</text>
+    <text class="menu-arrow">></text>
+  </view>
+</view>
+
+<view class="menu-section">
+  <text class="menu-title">其他</text>
+  <view class="menu-item" bindtap="navigateTo" data-page="settings">
+    <view class="menu-icon gray">设</view>
+    <text class="menu-label">设置</text>
+    <text class="menu-arrow">></text>
+  </view>
+  <view class="menu-item" bindtap="navigateTo" data-page="help">
+    <view class="menu-icon light-gray">帮</view>
+    <text class="menu-label">帮助与反馈</text>
+    <text class="menu-arrow">></text>
+  </view>
+</view>
+
+<view class="logout">
+  <button class="btn btn-ghost" bindtap="navigateTo" data-page="logout">退出登录</button>
+</view>

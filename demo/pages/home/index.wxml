@@ -1,0 +1,96 @@
+<view class="home-header">
+  <view class="header-top">
+    <view class="header-left">
+      <text class="greeting">你好, {{userInfo.name}}</text>
+      <text class="member-tag">{{userInfo.memberType}}</text>
+    </view>
+    <view class="notification-btn">通知</view>
+  </view>
+  <view class="member-card">
+    <view class="member-card-header">
+      <text class="member-label">季卡会员</text>
+      <text class="member-expiry">有效期至 {{userInfo.memberExpiry}}</text>
+    </view>
+    <view class="member-stats">
+      <view class="stat-item">
+        <text class="stat-value">{{userInfo.remainingHours}}</text>
+        <text class="stat-label">剩余课时</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{userInfo.monthlyCheckins}}</text>
+        <text class="stat-label">本月打卡</text>
+      </view>
+      <view class="stat-item">
+        <text class="stat-value">{{userInfo.totalRoutes}}</text>
+        <text class="stat-label">累计线路</text>
+      </view>
+    </view>
+  </view>
+</view>
+
+<view class="quick-actions">
+  <view class="quick-action" bindtap="goToBook">
+    <view class="action-icon orange">约</view>
+    <text class="action-label">约课</text>
+  </view>
+  <view class="quick-action" bindtap="goToData">
+    <view class="action-icon green">数</view>
+    <text class="action-label">数据</text>
+  </view>
+  <view class="quick-action" bindtap="goToCompetition">
+    <view class="action-icon blue">赛</view>
+    <text class="action-label">比赛</text>
+  </view>
+  <view class="quick-action">
+    <view class="action-icon purple">教</view>
+    <text class="action-label">教练</text>
+  </view>
+</view>
+
+<view class="card">
+  <view class="card-header">
+    <text class="card-title">近期课程</text>
+    <text class="card-link" bindtap="goToBook">查看全部</text>
+  </view>
+  <view class="course-list">
+    <block wx:for="{{upcomingCourses}}" wx:key="id">
+      <view class="course-item">
+        <view class="course-date">
+          <text class="date-day">{{item.dayName}}</text>
+          <text class="date-month">{{item.monthName}}</text>
+        </view>
+        <view class="course-info">
+          <text class="course-title">{{item.title}}</text>
+          <text class="course-meta">{{item.time}} - {{item.coach}} - {{item.duration}}分钟</text>
+        </view>
+        <view class="course-status {{item.status === 'confirmed' ? 'confirmed' : 'pending'}}">
+          {{item.status === 'confirmed' ? '已确认' : '待支付'}}
+        </view>
+      </view>
+    </block>
+  </view>
+</view>
+
+<view class="section-title">本月数据</view>
+<view class="stats-grid">
+  <view class="stat-card">
+    <view class="stat-icon orange">攀</view>
+    <text class="stat-card-value">28</text>
+    <text class="stat-card-label">累计攀爬次数</text>
+  </view>
+  <view class="stat-card">
+    <view class="stat-icon green">时</view>
+    <text class="stat-card-value">1,240</text>
+    <text class="stat-card-label">累计分钟</text>
+  </view>
+  <view class="stat-card">
+    <view class="stat-icon blue">卡</view>
+    <text class="stat-card-value">8,560</text>
+    <text class="stat-card-label">消耗卡路里</text>
+  </view>
+  <view class="stat-card">
+    <view class="stat-icon purple">榜</view>
+    <text class="stat-card-value">Top 15%</text>
+    <text class="stat-card-label">好友排名</text>
+  </view>
+</view>

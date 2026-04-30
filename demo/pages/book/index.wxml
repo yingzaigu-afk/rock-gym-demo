@@ -1,0 +1,92 @@
+<view class="booking-flow">
+  <view class="flow-step completed">
+    <view class="step-num">1</view>
+    <view class="step-content">
+      <text class="step-title">选择教练</text>
+      <text class="step-desc">{{selectedCoach.name}}教练</text>
+    </view>
+  </view>
+  <view class="flow-step active">
+    <view class="step-num">2</view>
+    <view class="step-content">
+      <text class="step-title">选择时间</text>
+      <text class="step-desc">{{selectedDate.date}}</text>
+    </view>
+  </view>
+  <view class="flow-step">
+    <view class="step-num">3</view>
+    <view class="step-content">
+      <text class="step-title">选择课程</text>
+      <text class="step-desc">课程类型 & 时长</text>
+    </view>
+  </view>
+  <view class="flow-step">
+    <view class="step-num">4</view>
+    <view class="step-content">
+      <text class="step-title">确认支付</text>
+      <text class="step-desc">订单预览</text>
+    </view>
+  </view>
+</view>
+
+<view class="section-title">选择日期</view>
+<scroll-view class="date-scroll" scroll-x="true">
+  <view class="date-picker">
+    <block wx:for="{{dates}}" wx:key="index">
+      <view class="date-item {{selectedDate.date === item.date ? 'active' : ''}}" bindtap="selectDate" data-index="{{index}}">
+        <text class="day-name">{{item.dayName}}</text>
+        <text class="day-num">{{item.dayNum}}</text>
+      </view>
+    </block>
+  </view>
+</scroll-view>
+
+<view class="section-title">选择时间</view>
+<view class="time-grid">
+  <block wx:for="{{times}}" wx:key="index">
+    <view class="time-slot {{selectedTime === item ? 'active' : ''}}" bindtap="selectTime" data-time="{{item}}">{{item}}</view>
+  </block>
+</view>
+
+<view class="section-title">课程类型</view>
+<view class="course-type-grid">
+  <block wx:for="{{courseTypes}}" wx:key="index">
+    <view class="course-type-item {{selectedCourseType === item.name ? 'active' : ''}}" bindtap="selectCourseType" data-index="{{index}}">
+      <text class="course-icon">{{item.icon}}</text>
+      <text class="course-name">{{item.name}}</text>
+      <text class="course-desc">{{item.desc}}</text>
+    </view>
+  </block>
+</view>
+
+<view class="section-title">课程时长</view>
+<view class="duration-grid">
+  <block wx:for="{{durations}}" wx:key="index">
+    <view class="duration-item {{selectedDuration === item ? 'active' : ''}}" bindtap="selectDuration" data-index="{{index}}">
+      <text class="duration-time">{{item}}</text>
+      <text class="duration-unit">分钟</text>
+    </view>
+  </block>
+</view>
+
+<view class="price-preview">
+  <view class="price-card">
+    <view class="price-row">
+      <text class="price-label">教练</text>
+      <text class="price-value">{{selectedCoach.name}}</text>
+    </view>
+    <view class="price-row">
+      <text class="price-label">日期时间</text>
+      <text class="price-value">{{selectedDate.monthName}}{{selectedDate.dayNum}}日 {{selectedTime}}</text>
+    </view>
+    <view class="price-row">
+      <text class="price-label">课程类型</text>
+      <text class="price-value">{{selectedCourseType}} - {{selectedDuration}}分钟</text>
+    </view>
+    <view class="price-row price-total">
+      <text class="price-label">应付金额</text>
+      <text class="price-amount">¥{{selectedCoach.price}}</text>
+    </view>
+  </view>
+  <button class="btn btn-primary btn-block" bindtap="confirmBooking">确认预约</button>
+</view>

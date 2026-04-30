@@ -1,0 +1,32 @@
+<view class="coach-list">
+  <block wx:for="{{coaches}}" wx:key="id">
+    <view class="card">
+      <view class="coach-card">
+        <view class="coach-avatar coach-avatar-{{item.gradient}}">{{item.avatar}}</view>
+        <view class="coach-info">
+          <text class="coach-name">{{item.name}}</text>
+          <view class="coach-tags">
+            <block wx:for="{{item.tags}}" wx:key="index">
+              <text class="tag">{{item}}</text>
+            </block>
+          </view>
+          <view class="coach-rating">
+            <text class="rating-text">{{item.rating}}分 - {{item.reviews}}评价</text>
+          </view>
+        </view>
+        <view class="coach-price">
+          <text class="price">¥{{item.price}}</text>
+          <text class="price-unit">/时</text>
+        </view>
+      </view>
+      <button class="btn {{coach && coach.id === item.id ? 'btn-primary' : 'btn-secondary'}} btn-block" bindtap="selectCoach" data-index="{{index}}">
+        {{coach && coach.id === item.id ? '已选择' : '选择此教练'}}
+      </button>
+    </view>
+  </block>
+</view>
+
+<view class="auto-assign">
+  <button class="btn btn-ghost" bindtap="autoAssign">系统自动分配教练</button>
+  <text class="auto-desc">根据教练空闲时间自动匹配</text>
+</view>

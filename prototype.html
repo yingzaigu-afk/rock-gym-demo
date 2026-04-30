@@ -1,0 +1,2084 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0, maximum-scale=1.0, user-scalable=no">
+  <title>岩馆 C 端系统 · 原型设计</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700&display=swap" rel="stylesheet">
+  <style>
+    :root {
+      --primary: #FF6B35;
+      --primary-dark: #E55A2B;
+      --primary-light: #FFF0ED;
+      --secondary: #2D3436;
+      --bg: #F8F9FA;
+      --card-bg: #FFFFFF;
+      --border: #E9ECEF;
+      --text-primary: #212529;
+      --text-secondary: #6C757D;
+      --text-placeholder: #ADB5BD;
+      --success: #28A745;
+      --warning: #FFC107;
+      --error: #DC3545;
+      --info: #17A2B8;
+      
+      --space-1: 4px;
+      --space-2: 8px;
+      --space-3: 12px;
+      --space-4: 16px;
+      --space-6: 24px;
+      --space-8: 32px;
+      
+      --radius-sm: 8px;
+      --radius-md: 12px;
+      --radius-lg: 16px;
+      
+      --shadow-sm: 0 2px 8px rgba(0, 0, 0, 0.06);
+      --shadow-md: 0 4px 12px rgba(0, 0, 0, 0.1);
+      
+      --font-family: 'Noto Sans SC', -apple-system, BlinkMacSystemFont, 'PingFang SC', sans-serif;
+      
+      --safe-top: env(safe-area-inset-top, 0px);
+      --safe-bottom: env(safe-area-inset-bottom, 0px);
+    }
+
+    * {
+      margin: 0;
+      padding: 0;
+      box-sizing: border-box;
+    }
+
+    body {
+      font-family: var(--font-family);
+      background: #1a1a2e;
+      min-height: 100vh;
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      padding: 40px 20px;
+    }
+
+    /* Prototype Header */
+    .proto-header {
+      text-align: center;
+      margin-bottom: 40px;
+      color: white;
+    }
+    .proto-header h1 {
+      font-size: 28px;
+      font-weight: 700;
+      margin-bottom: 8px;
+    }
+    .proto-header p {
+      color: rgba(255,255,255,0.6);
+      font-size: 14px;
+    }
+
+    /* Screen Container */
+    .screens-wrapper {
+      display: flex;
+      gap: 40px;
+      flex-wrap: wrap;
+      justify-content: center;
+      max-width: 1400px;
+    }
+
+    .screen-column {
+      display: flex;
+      flex-direction: column;
+      gap: 40px;
+    }
+
+    /* Phone Frame */
+    .phone-frame {
+      width: 375px;
+      height: 812px;
+      background: var(--bg);
+      border-radius: 44px;
+      overflow: hidden;
+      position: relative;
+      box-shadow: 0 25px 80px rgba(0, 0, 0, 0.4);
+    }
+
+    /* Status Bar */
+    .status-bar {
+      height: 44px;
+      padding: 12px 24px 0;
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      font-size: 14px;
+      font-weight: 600;
+      background: var(--card-bg);
+    }
+    .status-bar-time {
+      font-weight: 600;
+    }
+    .status-bar-icons {
+      display: flex;
+      gap: 6px;
+      align-items: center;
+    }
+    .status-bar-icons svg {
+      width: 18px;
+      height: 18px;
+    }
+
+    /* Nav Bar */
+    .nav-bar {
+      height: 44px;
+      padding: 0 16px;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      background: var(--card-bg);
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--secondary);
+      position: relative;
+    }
+    .nav-bar .back {
+      position: absolute;
+      left: 16px;
+      display: flex;
+      align-items: center;
+      gap: 4px;
+      font-size: 16px;
+      color: var(--primary);
+    }
+
+    /* Content Area */
+    .content {
+      flex: 1;
+      overflow-y: auto;
+      padding-bottom: 80px;
+    }
+
+    /* Tab Bar */
+    .tab-bar {
+      position: absolute;
+      bottom: 0;
+      left: 0;
+      right: 0;
+      height: calc(56px + var(--safe-bottom));
+      padding-bottom: var(--safe-bottom);
+      background: var(--card-bg);
+      border-top: 1px solid var(--border);
+      display: flex;
+      justify-content: space-around;
+      align-items: center;
+    }
+    .tab-item {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 2px;
+      color: var(--text-secondary);
+      font-size: 10px;
+      text-decoration: none;
+      transition: color 0.2s;
+    }
+    .tab-item.active {
+      color: var(--primary);
+    }
+    .tab-item svg {
+      width: 24px;
+      height: 24px;
+    }
+
+    /* Common Components */
+    .page-title {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--secondary);
+      padding: 16px 16px 8px;
+    }
+
+    .section-title {
+      font-size: 18px;
+      font-weight: 600;
+      color: var(--secondary);
+      padding: 16px 16px 12px;
+    }
+
+    .card {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      box-shadow: var(--shadow-sm);
+      margin: 0 16px 16px;
+      overflow: hidden;
+    }
+
+    .btn {
+      height: 48px;
+      border-radius: var(--radius-sm);
+      font-size: 16px;
+      font-weight: 500;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      cursor: pointer;
+      transition: all 0.15s ease;
+      border: none;
+      outline: none;
+    }
+    .btn-primary {
+      background: var(--primary);
+      color: white;
+    }
+    .btn-primary:active {
+      background: var(--primary-dark);
+      transform: scale(0.98);
+    }
+    .btn-secondary {
+      background: var(--card-bg);
+      color: var(--primary);
+      border: 1px solid var(--primary);
+    }
+    .btn-ghost {
+      background: transparent;
+      color: var(--primary);
+    }
+
+    /* ==================== */
+    /* Screen 1: 首页 */
+    /* ==================== */
+    .home-header {
+      background: linear-gradient(135deg, var(--primary) 0%, #FF8C5A 100%);
+      padding: 16px 16px 24px;
+      color: white;
+    }
+    .home-header-top {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .home-header-top h1 {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .home-header-top .avatar {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+    }
+    .member-card {
+      background: rgba(255,255,255,0.2);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      backdrop-filter: blur(10px);
+    }
+    .member-card-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .member-card-header .tag {
+      background: rgba(255,255,255,0.3);
+      padding: 4px 8px;
+      border-radius: 4px;
+      font-size: 12px;
+    }
+    .member-card-info {
+      display: flex;
+      gap: 24px;
+    }
+    .member-stat {
+      text-align: center;
+    }
+    .member-stat .value {
+      font-size: 24px;
+      font-weight: 700;
+    }
+    .member-stat .label {
+      font-size: 12px;
+      opacity: 0.8;
+    }
+
+    .quick-actions {
+      display: grid;
+      grid-template-columns: repeat(4, 1fr);
+      gap: 12px;
+      padding: 16px;
+    }
+    .quick-action {
+      display: flex;
+      flex-direction: column;
+      align-items: center;
+      gap: 8px;
+    }
+    .quick-action-icon {
+      width: 56px;
+      height: 56px;
+      border-radius: var(--radius-md);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 24px;
+    }
+    .quick-action-icon.orange { background: #FFF0ED; }
+    .quick-action-icon.green { background: #E8F5E9; }
+    .quick-action-icon.blue { background: #E3F2FD; }
+    .quick-action-icon.purple { background: #F3E5F5; }
+    .quick-action span {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .upcoming-card {
+      padding: 16px;
+    }
+    .upcoming-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 12px;
+    }
+    .upcoming-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+    .upcoming-header a {
+      font-size: 13px;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .upcoming-item {
+      display: flex;
+      gap: 12px;
+      padding: 12px 0;
+      border-top: 1px solid var(--border);
+    }
+    .upcoming-item:first-of-type {
+      border-top: none;
+      padding-top: 0;
+    }
+    .upcoming-date {
+      width: 48px;
+      text-align: center;
+      flex-shrink: 0;
+    }
+    .upcoming-date .day {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .upcoming-date .month {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+    .upcoming-info {
+      flex: 1;
+    }
+    .upcoming-info h4 {
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+    .upcoming-info p {
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .upcoming-status {
+      font-size: 12px;
+      padding: 4px 8px;
+      border-radius: 4px;
+      background: #E8F5E9;
+      color: var(--success);
+    }
+
+    .stats-preview {
+      display: grid;
+      grid-template-columns: repeat(2, 1fr);
+      gap: 12px;
+      padding: 0 16px;
+    }
+    .stat-card {
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .stat-card .icon {
+      width: 40px;
+      height: 40px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 20px;
+      margin-bottom: 12px;
+    }
+    .stat-card .value {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+    .stat-card .label {
+      font-size: 13px;
+      color: var(--text-secondary);
+      margin-top: 4px;
+    }
+
+    /* ==================== */
+    /* Screen 2: 约课 */
+    /* ==================== */
+    .booking-tabs {
+      display: flex;
+      padding: 0 16px;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .booking-tab {
+      padding: 8px 16px;
+      border-radius: 20px;
+      font-size: 14px;
+      font-weight: 500;
+      background: var(--bg);
+      color: var(--text-secondary);
+      border: none;
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .booking-tab.active {
+      background: var(--primary);
+      color: white;
+    }
+
+    .coach-card {
+      display: flex;
+      gap: 12px;
+      padding: 16px;
+    }
+    .coach-avatar {
+      width: 64px;
+      height: 64px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 24px;
+      flex-shrink: 0;
+    }
+    .coach-avatar.green {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    .coach-avatar.orange {
+      background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+    }
+    .coach-info {
+      flex: 1;
+    }
+    .coach-info h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+    .coach-info .tags {
+      display: flex;
+      gap: 6px;
+      margin-bottom: 8px;
+    }
+    .coach-info .tag {
+      font-size: 11px;
+      padding: 2px 6px;
+      border-radius: 4px;
+      background: var(--primary-light);
+      color: var(--primary);
+    }
+    .coach-info .rating {
+      font-size: 13px;
+      color: var(--text-secondary);
+      display: flex;
+      align-items: center;
+      gap: 4px;
+    }
+    .coach-info .rating .stars {
+      color: #FFB800;
+    }
+    .coach-action {
+      display: flex;
+      flex-direction: column;
+      justify-content: center;
+      gap: 8px;
+    }
+    .coach-price {
+      font-size: 18px;
+      font-weight: 700;
+      color: var(--primary);
+      text-align: right;
+    }
+    .coach-price span {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    .booking-flow {
+      padding: 16px;
+    }
+    .flow-step {
+      display: flex;
+      gap: 16px;
+      margin-bottom: 24px;
+      position: relative;
+    }
+    .flow-step:not(:last-child)::after {
+      content: '';
+      position: absolute;
+      left: 19px;
+      top: 40px;
+      bottom: -8px;
+      width: 2px;
+      background: var(--border);
+    }
+    .flow-step.completed::after {
+      background: var(--primary);
+    }
+    .flow-step-num {
+      width: 40px;
+      height: 40px;
+      border-radius: 50%;
+      background: var(--bg);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-weight: 600;
+      font-size: 16px;
+      color: var(--text-secondary);
+      flex-shrink: 0;
+      position: relative;
+      z-index: 1;
+    }
+    .flow-step.completed .flow-step-num {
+      background: var(--primary);
+      color: white;
+    }
+    .flow-step.active .flow-step-num {
+      background: var(--primary);
+      color: white;
+      box-shadow: 0 0 0 4px var(--primary-light);
+    }
+    .flow-step-content h4 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 8px;
+    }
+    .flow-step-content p {
+      font-size: 14px;
+      color: var(--text-secondary);
+    }
+
+    .date-picker {
+      display: flex;
+      gap: 8px;
+      overflow-x: auto;
+      padding: 8px 0;
+      margin: 0 -16px;
+      padding-left: 16px;
+      padding-right: 16px;
+    }
+    .date-item {
+      min-width: 56px;
+      padding: 8px;
+      text-align: center;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .date-item.active {
+      background: var(--primary);
+      color: white;
+    }
+    .date-item .day-name {
+      font-size: 12px;
+    }
+    .date-item .day-num {
+      font-size: 18px;
+      font-weight: 600;
+      margin-top: 4px;
+    }
+
+    .time-slots {
+      display: grid;
+      grid-template-columns: repeat(3, 1fr);
+      gap: 8px;
+    }
+    .time-slot {
+      padding: 12px;
+      text-align: center;
+      border-radius: var(--radius-sm);
+      background: var(--bg);
+      font-size: 14px;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 1px solid transparent;
+    }
+    .time-slot:hover {
+      border-color: var(--primary);
+    }
+    .time-slot.active {
+      background: var(--primary-light);
+      border-color: var(--primary);
+      color: var(--primary);
+      font-weight: 500;
+    }
+
+    .course-type {
+      display: flex;
+      gap: 12px;
+    }
+    .course-option {
+      flex: 1;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: var(--bg);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    .course-option.active {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+    .course-option .icon {
+      font-size: 28px;
+      margin-bottom: 8px;
+    }
+    .course-option h5 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 4px;
+    }
+    .course-option p {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    .duration-options {
+      display: flex;
+      gap: 12px;
+    }
+    .duration-option {
+      flex: 1;
+      padding: 16px;
+      border-radius: var(--radius-md);
+      background: var(--bg);
+      text-align: center;
+      cursor: pointer;
+      transition: all 0.2s;
+      border: 2px solid transparent;
+    }
+    .duration-option.active {
+      background: var(--primary-light);
+      border-color: var(--primary);
+    }
+    .duration-option .time {
+      font-size: 24px;
+      font-weight: 700;
+      color: var(--secondary);
+    }
+    .duration-option .unit {
+      font-size: 12px;
+      color: var(--text-secondary);
+    }
+
+    /* ==================== */
+    /* Screen 3: 数据统计 */
+    /* ==================== */
+    .data-header {
+      padding: 16px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      color: white;
+    }
+    .data-header h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 16px;
+    }
+    .data-summary {
+      display: flex;
+      gap: 16px;
+    }
+    .data-summary-item {
+      flex: 1;
+      text-align: center;
+    }
+    .data-summary-item .value {
+      font-size: 32px;
+      font-weight: 700;
+    }
+    .data-summary-item .label {
+      font-size: 12px;
+      opacity: 0.8;
+      margin-top: 4px;
+    }
+
+    .chart-placeholder {
+      height: 180px;
+      margin: 16px;
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      display: flex;
+      flex-direction: column;
+      padding: 16px;
+      box-shadow: var(--shadow-sm);
+    }
+    .chart-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .chart-header h4 {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+    .chart-header .period {
+      font-size: 12px;
+      color: var(--text-secondary);
+      background: var(--bg);
+      padding: 4px 8px;
+      border-radius: 4px;
+    }
+    .chart-area {
+      flex: 1;
+      display: flex;
+      align-items: flex-end;
+      gap: 8px;
+      padding-top: 20px;
+    }
+    .chart-bar {
+      flex: 1;
+      background: var(--primary);
+      border-radius: 4px 4px 0 0;
+      opacity: 0.3;
+      transition: all 0.3s;
+    }
+    .chart-bar.active {
+      opacity: 1;
+    }
+    .chart-bar-label {
+      font-size: 10px;
+      color: var(--text-secondary);
+      text-align: center;
+      margin-top: 8px;
+    }
+
+    .ranking-card {
+      padding: 16px;
+    }
+    .ranking-header {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+      margin-bottom: 16px;
+    }
+    .ranking-header h3 {
+      font-size: 16px;
+      font-weight: 600;
+      color: var(--secondary);
+    }
+    .ranking-header a {
+      font-size: 13px;
+      color: var(--primary);
+      text-decoration: none;
+    }
+    .ranking-list {
+      display: flex;
+      flex-direction: column;
+      gap: 12px;
+    }
+    .ranking-item {
+      display: flex;
+      align-items: center;
+      gap: 12px;
+    }
+    .ranking-item .rank {
+      width: 24px;
+      height: 24px;
+      border-radius: 50%;
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 12px;
+      font-weight: 700;
+      background: var(--bg);
+      color: var(--text-secondary);
+    }
+    .ranking-item .rank.gold {
+      background: #FFF3CD;
+      color: #B8860B;
+    }
+    .ranking-item .rank.silver {
+      background: #E9ECEF;
+      color: #6C757D;
+    }
+    .ranking-item .rank.bronze {
+      background: #FFE4C4;
+      color: #CD7F32;
+    }
+    .ranking-item .avatar-small {
+      width: 32px;
+      height: 32px;
+      border-radius: 50%;
+      background: linear-gradient(135deg, var(--primary) 0%, #FF8C5A 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      color: white;
+      font-size: 14px;
+    }
+    .ranking-item .name {
+      flex: 1;
+      font-size: 14px;
+      color: var(--secondary);
+    }
+    .ranking-item .value {
+      font-size: 14px;
+      font-weight: 600;
+      color: var(--primary);
+    }
+
+    /* ==================== */
+    /* Screen 4: 比赛 */
+    /* ==================== */
+    .competition-tabs {
+      display: flex;
+      padding: 0 16px;
+      margin-bottom: 16px;
+      gap: 0;
+      border-bottom: 1px solid var(--border);
+    }
+    .competition-tab {
+      padding: 12px 16px;
+      font-size: 15px;
+      font-weight: 500;
+      color: var(--text-secondary);
+      border: none;
+      background: none;
+      cursor: pointer;
+      position: relative;
+      transition: color 0.2s;
+    }
+    .competition-tab.active {
+      color: var(--primary);
+    }
+    .competition-tab.active::after {
+      content: '';
+      position: absolute;
+      bottom: -1px;
+      left: 0;
+      right: 0;
+      height: 2px;
+      background: var(--primary);
+    }
+
+    .competition-card {
+      margin: 0 16px 16px;
+      background: var(--card-bg);
+      border-radius: var(--radius-md);
+      overflow: hidden;
+      box-shadow: var(--shadow-sm);
+    }
+    .competition-img {
+      height: 160px;
+      background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 64px;
+      color: white;
+      position: relative;
+    }
+    .competition-img.orange {
+      background: linear-gradient(135deg, var(--primary) 0%, #FF8C5A 100%);
+    }
+    .competition-img.green {
+      background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+    }
+    .competition-status {
+      position: absolute;
+      top: 12px;
+      right: 12px;
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      font-weight: 500;
+      background: rgba(255,255,255,0.9);
+      color: var(--primary);
+    }
+    .competition-status.upcoming {
+      background: rgba(255,255,255,0.9);
+      color: var(--info);
+    }
+    .competition-status.ended {
+      background: rgba(0,0,0,0.5);
+      color: white;
+    }
+    .competition-body {
+      padding: 16px;
+    }
+    .competition-body h3 {
+      font-size: 17px;
+      font-weight: 600;
+      color: var(--secondary);
+      margin-bottom: 8px;
+    }
+    .competition-meta {
+      display: flex;
+      flex-direction: column;
+      gap: 6px;
+      margin-bottom: 12px;
+    }
+    .competition-meta-item {
+      display: flex;
+      align-items: center;
+      gap: 6px;
+      font-size: 13px;
+      color: var(--text-secondary);
+    }
+    .competition-projects {
+      display: flex;
+      gap: 8px;
+      margin-bottom: 16px;
+    }
+    .competition-project {
+      padding: 4px 10px;
+      border-radius: 4px;
+      font-size: 12px;
+      background: var(--bg);
+      color: var(--text-secondary);
+    }
+    .competition-footer {
+      display: flex;
+      justify-content: space-between;
+      align-items: center;
+    }
+    .competition-price {
+      font-size: 20px;
+      font-weight: 700;
+      color: var(--primary);
+    }
+    .competition-price.free {
+      color: var(--success);
+    }
+    .competition-price span {
+      font-size: 12px;
+      font-weight: 400;
+      color: var(--text-secondary);
+    }
+
+    /* ==================== */
+    /* Screen 5: 我的 */
+    /* ==================== */
+    .profile-header {
+      padding: 24px 16px;
+      background: linear-gradient(135deg, var(--primary) 0%, #FF8C5A 100%);
+      color: white;
+      display: flex;
+      gap: 16px;
+      align-items: center;
+    }
+    .profile-avatar {
+      width: 72px;
+      height: 72px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 32px;
+      border: 3px solid rgba(255,255,255,0.5);
+    }
+    .profile-info h2 {
+      font-size: 20px;
+      font-weight: 600;
+      margin-bottom: 4px;
+    }
+    .profile-info p {
+      font-size: 13px;
+      opacity: 0.8;
+    }
+    .profile-info .member-badge {
+      display: inline-block;
+      margin-top: 8px;
+      padding: 4px 10px;
+      background: rgba(255,255,255,0.2);
+      border-radius: 12px;
+      font-size: 12px;
+    }
+
+    .menu-section {
+      padding: 16px 0;
+    }
+    .menu-section-title {
+      font-size: 13px;
+      color: var(--text-secondary);
+      padding: 0 16px;
+      margin-bottom: 8px;
+    }
+    .menu-item {
+      display: flex;
+      align-items: center;
+      padding: 14px 16px;
+      background: var(--card-bg);
+      cursor: pointer;
+      transition: background 0.2s;
+    }
+    .menu-item:active {
+      background: var(--bg);
+    }
+    .menu-item .icon {
+      width: 36px;
+      height: 36px;
+      border-radius: var(--radius-sm);
+      display: flex;
+      align-items: center;
+      justify-content: center;
+      font-size: 18px;
+      margin-right: 12px;
+    }
+    .menu-item .icon.orange { background: var(--primary-light); }
+    .menu-item .icon.green { background: #E8F5E9; }
+    .menu-item .icon.blue { background: #E3F2FD; }
+    .menu-item .icon.purple { background: #F3E5F5; }
+    .menu-item .label {
+      flex: 1;
+      font-size: 15px;
+      color: var(--secondary);
+    }
+    .menu-item .arrow {
+      color: var(--text-placeholder);
+      font-size: 14px;
+    }
+    .menu-item .badge {
+      font-size: 12px;
+      padding: 2px 8px;
+      border-radius: 10px;
+      background: var(--error);
+      color: white;
+      margin-right: 8px;
+    }
+
+    /* Screen Label */
+    .screen-label {
+      text-align: center;
+      margin-top: 16px;
+      font-size: 14px;
+      font-weight: 600;
+      color: rgba(255,255,255,0.8);
+    }
+
+    /* Navigation between screens */
+    .nav-dots {
+      display: flex;
+      justify-content: center;
+      gap: 8px;
+      margin-top: 20px;
+    }
+    .nav-dot {
+      width: 8px;
+      height: 8px;
+      border-radius: 50%;
+      background: rgba(255,255,255,0.3);
+      cursor: pointer;
+      transition: all 0.2s;
+    }
+    .nav-dot.active {
+      width: 24px;
+      border-radius: 4px;
+      background: var(--primary);
+    }
+  </style>
+</head>
+<body>
+
+<div class="proto-header">
+  <h1>🧗 岩馆 C 端系统</h1>
+  <p>交互原型设计 · 基于 PRD v1.0</p>
+</div>
+
+<div class="screens-wrapper">
+  
+  <!-- ==================== -->
+  <!-- Screen 1: 首页 -->
+  <!-- ==================== -->
+  <div class="screen-column">
+    <div class="phone-frame">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7.46 3 3.34 4.78.29 7.67c-.18.18-.29.43-.29.71 0 .28.11.53.29.71l11.71 11.62c.18.18.43.29.71.29.28 0 .53-.11.71-.29L25.71 8.38c.18-.18.29-.43.29-.71 0-.28-.11-.53-.29-.71C22.66 4.78 18.54 3 14 3h-2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar">首页</div>
+      <div class="content">
+        <!-- Home Header with Member Card -->
+        <div class="home-header">
+          <div class="home-header-top">
+            <h1>你好，小明 👋</h1>
+            <div class="avatar">🔔</div>
+          </div>
+          <div class="member-card">
+            <div class="member-card-header">
+              <span class="tag">⭐ 季卡会员</span>
+              <span style="font-size: 12px; opacity: 0.8;">有效期至 2026.07.15</span>
+            </div>
+            <div class="member-card-info">
+              <div class="member-stat">
+                <div class="value">12</div>
+                <div class="label">剩余课时</div>
+              </div>
+              <div class="member-stat">
+                <div class="value">8</div>
+                <div class="label">本月打卡</div>
+              </div>
+              <div class="member-stat">
+                <div class="value">36</div>
+                <div class="label">累计线路</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Quick Actions -->
+        <div class="quick-actions">
+          <div class="quick-action">
+            <div class="quick-action-icon orange">📅</div>
+            <span>约课</span>
+          </div>
+          <div class="quick-action">
+            <div class="quick-action-icon green">📊</div>
+            <span>数据</span>
+          </div>
+          <div class="quick-action">
+            <div class="quick-action-icon blue">🏆</div>
+            <span>比赛</span>
+          </div>
+          <div class="quick-action">
+            <div class="quick-action-icon purple">👥</div>
+            <span>教练</span>
+          </div>
+        </div>
+
+        <!-- Upcoming Courses -->
+        <div class="card upcoming-card">
+          <div class="upcoming-header">
+            <h3>近期课程</h3>
+            <a href="#">查看全部 →</a>
+          </div>
+          <div class="upcoming-item">
+            <div class="upcoming-date">
+              <div class="day">30</div>
+              <div class="month">4月</div>
+            </div>
+            <div class="upcoming-info">
+              <h4>私教课 · 进阶训练</h4>
+              <p>10:00 · 李教练 · 60分钟</p>
+            </div>
+            <span class="upcoming-status">已确认</span>
+          </div>
+          <div class="upcoming-item">
+            <div class="upcoming-date">
+              <div class="day">02</div>
+              <div class="month">5月</div>
+            </div>
+            <div class="upcoming-info">
+              <h4>私教课 · 技巧专项</h4>
+              <p>15:00 · 王教练 · 90分钟</p>
+            </div>
+            <span class="upcoming-status" style="background: #FFF3CD; color: #856404;">待支付</span>
+          </div>
+        </div>
+
+        <!-- Stats Preview -->
+        <div class="section-title">本月数据</div>
+        <div class="stats-preview">
+          <div class="stat-card">
+            <div class="icon" style="background: #FFF0ED;">🧗</div>
+            <div class="value">28</div>
+            <div class="label">累计攀爬次数</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon" style="background: #E8F5E9;">⏱️</div>
+            <div class="value">1,240</div>
+            <div class="label">累计分钟</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon" style="background: #E3F2FD;">🔥</div>
+            <div class="value">8,560</div>
+            <div class="label">消耗卡路里</div>
+          </div>
+          <div class="stat-card">
+            <div class="icon" style="background: #F3E5F5;">🏆</div>
+            <div class="value">Top 15%</div>
+            <div class="label">好友排名</div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <a href="#" class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>首页</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+          <span>约课</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+          <span>数据</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+          <span>比赛</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>我的</span>
+        </a>
+      </div>
+    </div>
+    <div class="screen-label">首页</div>
+  </div>
+
+  <!-- ==================== -->
+  <!-- Screen 2: 约课流程 -->
+  <!-- ==================== -->
+  <div class="screen-column">
+    <div class="phone-frame">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7.46 3 3.34 4.78.29 7.67c-.18.18-.29.43-.29.71 0 .28.11.53.29.71l11.71 11.62c.18.18.43.29.71.29.28 0 .53-.11.71-.29L25.71 8.38c.18-.18.29-.43.29-.71 0-.28-.11-.53-.29-.71C22.66 4.78 18.54 3 14 3h-2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <span class="back">← 返回</span>
+        预约私教课
+      </div>
+      <div class="content">
+        
+        <!-- Flow Steps -->
+        <div class="booking-flow">
+          <div class="flow-step completed">
+            <div class="flow-step-num">✓</div>
+            <div class="flow-step-content">
+              <h4>选择教练</h4>
+              <p>李明教练 · 5.0分 · 328条评价</p>
+            </div>
+          </div>
+          <div class="flow-step active">
+            <div class="flow-step-num">2</div>
+            <div class="flow-step-content">
+              <h4>选择时间</h4>
+              <p>2026年4月30日 周三</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">3</div>
+            <div class="flow-step-content">
+              <h4>选择课程</h4>
+              <p>课程类型 & 时长</p>
+            </div>
+          </div>
+          <div class="flow-step">
+            <div class="flow-step-num">4</div>
+            <div class="flow-step-content">
+              <h4>确认支付</h4>
+              <p>订单预览</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Date Picker -->
+        <div class="section-title">选择日期</div>
+        <div class="date-picker">
+          <div class="date-item">
+            <div class="day-name">周一</div>
+            <div class="day-num">28</div>
+          </div>
+          <div class="date-item">
+            <div class="day-name">周二</div>
+            <div class="day-num">29</div>
+          </div>
+          <div class="date-item active">
+            <div class="day-name">周三</div>
+            <div class="day-num">30</div>
+          </div>
+          <div class="date-item">
+            <div class="day-name">周四</div>
+            <div class="day-num">01</div>
+          </div>
+          <div class="date-item">
+            <div class="day-name">周五</div>
+            <div class="day-num">02</div>
+          </div>
+          <div class="date-item">
+            <div class="day-name">周六</div>
+            <div class="day-num">03</div>
+          </div>
+          <div class="date-item">
+            <div class="day-name">周日</div>
+            <div class="day-num">04</div>
+          </div>
+        </div>
+
+        <!-- Time Slots -->
+        <div class="section-title">选择时间</div>
+        <div style="padding: 0 16px;">
+          <div class="time-slots" style="margin-bottom: 8px;">
+            <div class="time-slot">09:00</div>
+            <div class="time-slot active">10:00</div>
+            <div class="time-slot">11:00</div>
+          </div>
+          <div class="time-slots" style="margin-bottom: 8px;">
+            <div class="time-slot">14:00</div>
+            <div class="time-slot">15:00</div>
+            <div class="time-slot">16:00</div>
+          </div>
+          <div class="time-slots">
+            <div class="time-slot">17:00</div>
+            <div class="time-slot">18:00</div>
+            <div class="time-slot">19:00</div>
+          </div>
+        </div>
+
+        <!-- Course Type -->
+        <div class="section-title">课程类型</div>
+        <div style="padding: 0 16px;">
+          <div class="course-type">
+            <div class="course-option">
+              <div class="icon">🦸</div>
+              <h5>入门</h5>
+              <p>零基础起步</p>
+            </div>
+            <div class="course-option active">
+              <div class="icon">🚀</div>
+              <h5>进阶</h5>
+              <p>提升技能</p>
+            </div>
+            <div class="course-option">
+              <div class="icon">🎯</div>
+              <h5>技巧专项</h5>
+              <p>针对性训练</p>
+            </div>
+          </div>
+        </div>
+
+        <!-- Duration -->
+        <div class="section-title">课程时长</div>
+        <div style="padding: 0 16px;">
+          <div class="duration-options">
+            <div class="duration-option">
+              <div class="time">30</div>
+              <div class="unit">分钟</div>
+            </div>
+            <div class="duration-option active">
+              <div class="time">60</div>
+              <div class="unit">分钟</div>
+            </div>
+            <div class="duration-option">
+              <div class="time">90</div>
+              <div class="unit">分钟</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Price Info -->
+        <div style="padding: 24px 16px;">
+          <div class="card" style="padding: 16px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <span style="color: var(--text-secondary);">教练</span>
+              <span style="color: var(--secondary); font-weight: 500;">李明</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <span style="color: var(--text-secondary);">日期时间</span>
+              <span style="color: var(--secondary); font-weight: 500;">4月30日 10:00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <span style="color: var(--text-secondary);">课程类型</span>
+              <span style="color: var(--secondary); font-weight: 500;">进阶 · 60分钟</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding-top: 12px; border-top: 1px dashed var(--border);">
+              <span style="color: var(--secondary); font-weight: 600;">应付金额</span>
+              <span style="color: var(--primary); font-size: 20px; font-weight: 700;">¥300</span>
+            </div>
+          </div>
+          <button class="btn btn-primary" style="margin-top: 16px; width: 100%;">确认预约</button>
+        </div>
+      </div>
+    </div>
+    <div class="screen-label">约课流程 · 选择时间</div>
+  </div>
+
+  <!-- ==================== -->
+  <!-- Screen 3: 数据统计 -->
+  <!-- ==================== -->
+  <div class="screen-column">
+    <div class="phone-frame">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7.46 3 3.34 4.78.29 7.67c-.18.18-.29.43-.29.71 0 .28.11.53.29.71l11.71 11.62c.18.18.43.29.71.29.28 0 .53-.11.71-.29L25.71 8.38c.18-.18.29-.43.29-.71 0-.28-.11-.53-.29-.71C22.66 4.78 18.54 3 14 3h-2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar">运动数据</div>
+      <div class="content">
+        
+        <!-- Data Header -->
+        <div class="data-header">
+          <h2>📊 数据总览</h2>
+          <div class="data-summary">
+            <div class="data-summary-item">
+              <div class="value">156</div>
+              <div class="label">累计打卡</div>
+            </div>
+            <div class="data-summary-item">
+              <div class="value">89</div>
+              <div class="label">完成线路</div>
+            </div>
+            <div class="data-summary-item">
+              <div class="value">45.2h</div>
+              <div class="label">攀爬时长</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Weekly Chart -->
+        <div class="chart-placeholder">
+          <div class="chart-header">
+            <h4>📈 周趋势</h4>
+            <span class="period">近7天 ▾</span>
+          </div>
+          <div class="chart-area">
+            <div style="text-align: center;">
+              <div class="chart-bar" style="height: 40px;"></div>
+              <div class="chart-bar-label">一</div>
+            </div>
+            <div style="text-align: center;">
+              <div class="chart-bar" style="height: 60px;"></div>
+              <div class="chart-bar-label">二</div>
+            </div>
+            <div style="text-align: center;">
+              <div class="chart-bar" style="height: 35px;"></div>
+              <div class="chart-bar-label">三</div>
+            </div>
+            <div style="text-align: center;">
+              <div class="chart-bar" style="height: 80px;"></div>
+              <div class="chart-bar-label">四</div>
+            </div>
+            <div style="text-align: center;">
+              <div class="chart-bar active" style="height: 100px;"></div>
+              <div class="chart-bar-label">五</div>
+            </div>
+            <div style="text-align: center;">
+              <div class="chart-bar" style="height: 70px;"></div>
+              <div class="chart-bar-label">六</div>
+            </div>
+            <div style="text-align: center;">
+              <div class="chart-bar" style="height: 50px;"></div>
+              <div class="chart-bar-label">日</div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Achievement -->
+        <div class="section-title">🏅 本月成就</div>
+        <div style="display: flex; gap: 12px; padding: 0 16px;">
+          <div class="card" style="flex: 1; padding: 16px; text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 8px;">🔥</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--secondary);">连续7天</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">坚持打卡</div>
+          </div>
+          <div class="card" style="flex: 1; padding: 16px; text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 8px;">⛰️</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--secondary);">15条</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">新线路完成</div>
+          </div>
+          <div class="card" style="flex: 1; padding: 16px; text-align: center;">
+            <div style="font-size: 32px; margin-bottom: 8px;">⚡</div>
+            <div style="font-size: 18px; font-weight: 700; color: var(--secondary);">Top 15%</div>
+            <div style="font-size: 12px; color: var(--text-secondary);">排名提升</div>
+          </div>
+        </div>
+
+        <!-- Ranking -->
+        <div class="card ranking-card">
+          <div class="ranking-header">
+            <h3>🏆 好友排行榜</h3>
+            <a href="#">查看全部 →</a>
+          </div>
+          <div class="ranking-list">
+            <div class="ranking-item">
+              <div class="rank gold">1</div>
+              <div class="avatar-small">🏔️</div>
+              <div class="name">陈大力</div>
+              <div class="value">28次/周</div>
+            </div>
+            <div class="ranking-item">
+              <div class="rank silver">2</div>
+              <div class="avatar-small" style="background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);">🧗</div>
+              <div class="name">小明</div>
+              <div class="value">21次/周</div>
+            </div>
+            <div class="ranking-item">
+              <div class="rank bronze">3</div>
+              <div class="avatar-small" style="background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);">🦸</div>
+              <div class="name">小美</div>
+              <div class="value">18次/周</div>
+            </div>
+            <div class="ranking-item">
+              <div class="rank">4</div>
+              <div class="avatar-small" style="background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);">🏃</div>
+              <div class="name">阿杰</div>
+              <div class="value">15次/周</div>
+            </div>
+          </div>
+        </div>
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>首页</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+          <span>约课</span>
+        </a>
+        <a href="#" class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+          <span>数据</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+          <span>比赛</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>我的</span>
+        </a>
+      </div>
+    </div>
+    <div class="screen-label">数据统计</div>
+  </div>
+
+  <!-- ==================== -->
+  <!-- Screen 4: 比赛 -->
+  <!-- ==================== -->
+  <div class="screen-column">
+    <div class="phone-frame">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7.46 3 3.34 4.78.29 7.67c-.18.18-.29.43-.29.71 0 .28.11.53.29.71l11.71 11.62c.18.18.43.29.71.29.28 0 .53-.11.71-.29L25.71 8.38c.18-.18.29-.43.29-.71 0-.28-.11-.53-.29-.71C22.66 4.78 18.54 3 14 3h-2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar">赛事报名</div>
+      <div class="content">
+        
+        <!-- Competition Tabs -->
+        <div class="competition-tabs">
+          <button class="competition-tab active">正在进行</button>
+          <button class="competition-tab">即将开始</button>
+          <button class="competition-tab">往期回顾</button>
+        </div>
+
+        <!-- Competition Card 1 -->
+        <div class="competition-card">
+          <div class="competition-img orange">
+            🏆
+            <span class="competition-status">报名中</span>
+          </div>
+          <div class="competition-body">
+            <h3>「巅峰挑战」春季攀石赛</h3>
+            <div class="competition-meta">
+              <div class="competition-meta-item">
+                📅 2026年5月10日 09:00
+              </div>
+              <div class="competition-meta-item">
+                📍 极限攀岩馆 · 主赛场
+              </div>
+              <div class="competition-meta-item">
+                👥 已报名 128/200
+              </div>
+            </div>
+            <div class="competition-projects">
+              <span class="competition-project">难度赛</span>
+              <span class="competition-project">速度赛</span>
+              <span class="competition-project">攀石赛</span>
+            </div>
+            <div class="competition-footer">
+              <div class="competition-price">¥99 <span>起</span></div>
+              <button class="btn btn-primary" style="width: 100px; height: 36px; font-size: 14px;">立即报名</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Competition Card 2 -->
+        <div class="competition-card">
+          <div class="competition-img green">
+            🎯
+            <span class="competition-status upcoming">即将开始</span>
+          </div>
+          <div class="competition-body">
+            <h3>青少年攀岩入门赛</h3>
+            <div class="competition-meta">
+              <div class="competition-meta-item">
+                📅 2026年5月15日 14:00
+              </div>
+              <div class="competition-meta-item">
+                📍 极限攀岩馆 · 青少区
+              </div>
+              <div class="competition-meta-item">
+                👥 已报名 45/80
+              </div>
+            </div>
+            <div class="competition-projects">
+              <span class="competition-project">入门组</span>
+              <span class="competition-project">亲子组</span>
+            </div>
+            <div class="competition-footer">
+              <div class="competition-price free">免费</div>
+              <button class="btn btn-primary" style="width: 100px; height: 36px; font-size: 14px;">立即报名</button>
+            </div>
+          </div>
+        </div>
+
+        <!-- Competition Card 3 -->
+        <div class="competition-card">
+          <div class="competition-img">
+            🏅
+            <span class="competition-status ended">已结束</span>
+          </div>
+          <div class="competition-body">
+            <h3>「勇者之路」月度排位赛 · 4月</h3>
+            <div class="competition-meta">
+              <div class="competition-meta-item">
+                📅 2026年4月26日
+              </div>
+              <div class="competition-meta-item">
+                📍 极限攀岩馆
+              </div>
+              <div class="competition-meta-item">
+                👥 参赛人数 156
+              </div>
+            </div>
+            <div class="competition-projects">
+              <span class="competition-project">难度赛</span>
+              <span class="competition-project">攀石赛</span>
+            </div>
+            <div class="competition-footer">
+              <div class="competition-price">¥50 <span>已结束</span></div>
+              <button class="btn btn-secondary" style="width: 100px; height: 36px; font-size: 14px;">查看成绩</button>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>首页</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+          <span>约课</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+          <span>数据</span>
+        </a>
+        <a href="#" class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+          <span>比赛</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>我的</span>
+        </a>
+      </div>
+    </div>
+    <div class="screen-label">赛事报名</div>
+  </div>
+
+  <!-- ==================== -->
+  <!-- Screen 5: 我的 -->
+  <!-- ==================== -->
+  <div class="screen-column">
+    <div class="phone-frame">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7.46 3 3.34 4.78.29 7.67c-.18.18-.29.43-.29.71 0 .28.11.53.29.71l11.71 11.62c.18.18.43.29.71.29.28 0 .53-.11.71-.29L25.71 8.38c.18-.18.29-.43.29-.71 0-.28-.11-.53-.29-.71C22.66 4.78 18.54 3 14 3h-2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar">个人中心</div>
+      <div class="content">
+        
+        <!-- Profile Header -->
+        <div class="profile-header">
+          <div class="profile-avatar">🧗</div>
+          <div class="profile-info">
+            <h2>张小明</h2>
+            <p>138****8888</p>
+            <span class="member-badge">⭐ 季卡会员</span>
+          </div>
+        </div>
+
+        <!-- Member Card -->
+        <div class="card" style="margin: 16px; padding: 16px;">
+          <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+            <span style="font-size: 14px; color: var(--text-secondary);">会员卡</span>
+            <a href="#" style="font-size: 13px; color: var(--primary);">查看详情 →</a>
+          </div>
+          <div style="background: linear-gradient(135deg, var(--primary) 0%, #FF8C5A 100%); border-radius: 12px; padding: 16px; color: white;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 12px;">
+              <span style="font-size: 14px;">季卡 · 进阶会员</span>
+              <span style="font-size: 12px; opacity: 0.8;">有效期至 2026.07.15</span>
+            </div>
+            <div style="display: flex; gap: 24px;">
+              <div>
+                <div style="font-size: 24px; font-weight: 700;">12</div>
+                <div style="font-size: 12px; opacity: 0.8;">剩余课时</div>
+              </div>
+              <div>
+                <div style="font-size: 24px; font-weight: 700;">8</div>
+                <div style="font-size: 12px; opacity: 0.8;">本月打卡</div>
+              </div>
+              <div>
+                <div style="font-size: 24px; font-weight: 700;">¥0</div>
+                <div style="font-size: 12px; opacity: 0.8;">账户余额</div>
+              </div>
+            </div>
+          </div>
+        </div>
+
+        <!-- Menu Section 1 -->
+        <div class="menu-section">
+          <div class="menu-section-title">我的课程</div>
+          <div class="menu-item">
+            <div class="icon orange">📅</div>
+            <span class="label">我的约课</span>
+            <span class="badge">3</span>
+            <span class="arrow">›</span>
+          </div>
+          <div class="menu-item">
+            <div class="icon green">📋</div>
+            <span class="label">约课记录</span>
+            <span class="arrow">›</span>
+          </div>
+          <div class="menu-item">
+            <div class="icon blue">📦</div>
+            <span class="label">我的套餐</span>
+            <span class="arrow">›</span>
+          </div>
+        </div>
+
+        <!-- Menu Section 2 -->
+        <div class="menu-section">
+          <div class="menu-section-title">赛事与活动</div>
+          <div class="menu-item">
+            <div class="icon purple">🏆</div>
+            <span class="label">我的报名</span>
+            <span class="arrow">›</span>
+          </div>
+          <div class="menu-item">
+            <div class="icon" style="background: #FFF3CD;">🎫</div>
+            <span class="label">优惠券</span>
+            <span class="arrow">›</span>
+          </div>
+        </div>
+
+        <!-- Menu Section 3 -->
+        <div class="menu-section">
+          <div class="menu-section-title">其他</div>
+          <div class="menu-item">
+            <div class="icon" style="background: #E3F2FD;">⚙️</div>
+            <span class="label">设置</span>
+            <span class="arrow">›</span>
+          </div>
+          <div class="menu-item">
+            <div class="icon" style="background: #E9ECEF;">❓</div>
+            <span class="label">帮助与反馈</span>
+            <span class="arrow">›</span>
+          </div>
+        </div>
+
+        <!-- Logout -->
+        <div style="padding: 24px 16px;">
+          <button class="btn btn-ghost" style="width: 100%; color: var(--text-secondary);">退出登录</button>
+        </div>
+
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>首页</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+          <span>约课</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+          <span>数据</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+          <span>比赛</span>
+        </a>
+        <a href="#" class="tab-item active">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>我的</span>
+        </a>
+      </div>
+    </div>
+    <div class="screen-label">个人中心</div>
+  </div>
+
+  <!-- ==================== -->
+  <!-- Screen 6: 教练选择 -->
+  <!-- ==================== -->
+  <div class="screen-column">
+    <div class="phone-frame">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7.46 3 3.34 4.78.29 7.67c-.18.18-.29.43-.29.71 0 .28.11.53.29.71l11.71 11.62c.18.18.43.29.71.29.28 0 .53-.11.71-.29L25.71 8.38c.18-.18.29-.43.29-.71 0-.28-.11-.53-.29-.71C22.66 4.78 18.54 3 14 3h-2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar">
+        <span class="back">← 返回</span>
+        选择教练
+      </div>
+      <div class="content">
+        
+        <!-- Tabs -->
+        <div class="booking-tabs">
+          <button class="booking-tab active">全部教练</button>
+          <button class="booking-tab">我的教练</button>
+        </div>
+
+        <!-- Coach Card 1 -->
+        <div class="card">
+          <div class="coach-card">
+            <div class="coach-avatar">👨‍🏫</div>
+            <div class="coach-info">
+              <h4>李明</h4>
+              <div class="tags">
+                <span class="tag">进阶</span>
+                <span class="tag">技巧</span>
+              </div>
+              <div class="rating">
+                <span class="stars">★★★★★</span>
+                <span>5.0 · 328评价</span>
+              </div>
+            </div>
+            <div class="coach-action">
+              <div class="coach-price">¥300<span>/时</span></div>
+            </div>
+          </div>
+          <div style="padding: 0 16px 16px;">
+            <button class="btn btn-primary" style="width: 100%;">选择此教练</button>
+          </div>
+        </div>
+
+        <!-- Coach Card 2 -->
+        <div class="card">
+          <div class="coach-card">
+            <div class="coach-avatar green">👩‍🏫</div>
+            <div class="coach-info">
+              <h4>王丽</h4>
+              <div class="tags">
+                <span class="tag">入门</span>
+                <span class="tag">亲子</span>
+              </div>
+              <div class="rating">
+                <span class="stars">★★★★★</span>
+                <span>4.9 · 156评价</span>
+              </div>
+            </div>
+            <div class="coach-action">
+              <div class="coach-price">¥280<span>/时</span></div>
+            </div>
+          </div>
+          <div style="padding: 0 16px 16px;">
+            <button class="btn btn-secondary" style="width: 100%;">选择此教练</button>
+          </div>
+        </div>
+
+        <!-- Coach Card 3 -->
+        <div class="card">
+          <div class="coach-card">
+            <div class="coach-avatar orange">🧗</div>
+            <div class="coach-info">
+              <h4>张强</h4>
+              <div class="tags">
+                <span class="tag">速度</span>
+                <span class="tag">攀石</span>
+              </div>
+              <div class="rating">
+                <span class="stars">★★★★☆</span>
+                <span>4.8 · 89评价</span>
+              </div>
+            </div>
+            <div class="coach-action">
+              <div class="coach-price">¥260<span>/时</span></div>
+            </div>
+          </div>
+          <div style="padding: 0 16px 16px;">
+            <button class="btn btn-secondary" style="width: 100%;">选择此教练</button>
+          </div>
+        </div>
+
+        <!-- Auto Assign -->
+        <div style="padding: 24px 16px; text-align: center;">
+          <button class="btn btn-ghost" style="color: var(--primary);">
+            🎲 系统自动分配教练
+          </button>
+          <p style="font-size: 12px; color: var(--text-secondary); margin-top: 8px;">根据教练空闲时间自动匹配</p>
+        </div>
+
+      </div>
+    </div>
+    <div class="screen-label">选择教练</div>
+  </div>
+
+  <!-- ==================== -->
+  <!-- Screen 7: 报名成功 -->
+  <!-- ==================== -->
+  <div class="screen-column">
+    <div class="phone-frame">
+      <div class="status-bar">
+        <span class="status-bar-time">9:41</span>
+        <div class="status-bar-icons">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 3C7.46 3 3.34 4.78.29 7.67c-.18.18-.29.43-.29.71 0 .28.11.53.29.71l11.71 11.62c.18.18.43.29.71.29.28 0 .53-.11.71-.29L25.71 8.38c.18-.18.29-.43.29-.71 0-.28-.11-.53-.29-.71C22.66 4.78 18.54 3 14 3h-2z"/></svg>
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M17 4h-3V2h-4v2H7v18h10V4z"/></svg>
+        </div>
+      </div>
+      <div class="nav-bar">预约成功</div>
+      <div class="content">
+        
+        <!-- Success State -->
+        <div style="padding: 60px 16px; text-align: center;">
+          <div style="width: 100px; height: 100px; border-radius: 50%; background: #E8F5E9; display: flex; align-items: center; justify-content: center; margin: 0 auto 24px;">
+            <span style="font-size: 48px;">✓</span>
+          </div>
+          <h2 style="font-size: 24px; font-weight: 700; color: var(--secondary); margin-bottom: 8px;">预约成功！</h2>
+          <p style="font-size: 14px; color: var(--text-secondary); margin-bottom: 32px;">我们已发送通知到您的微信</p>
+          
+          <!-- Booking Details -->
+          <div class="card" style="text-align: left; padding: 20px;">
+            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+              <span style="color: var(--text-secondary);">课程</span>
+              <span style="color: var(--secondary); font-weight: 500;">私教课 · 进阶训练</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+              <span style="color: var(--text-secondary);">教练</span>
+              <span style="color: var(--secondary); font-weight: 500;">李明</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+              <span style="color: var(--text-secondary);">时间</span>
+              <span style="color: var(--secondary); font-weight: 500;">4月30日 10:00</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; margin-bottom: 16px;">
+              <span style="color: var(--text-secondary);">时长</span>
+              <span style="color: var(--secondary); font-weight: 500;">60分钟</span>
+            </div>
+            <div style="display: flex; justify-content: space-between; padding-top: 16px; border-top: 1px dashed var(--border);">
+              <span style="color: var(--secondary); font-weight: 600;">实付</span>
+              <span style="color: var(--primary); font-size: 20px; font-weight: 700;">¥300</span>
+            </div>
+          </div>
+        </div>
+
+        <!-- Actions -->
+        <div style="padding: 0 16px;">
+          <button class="btn btn-primary" style="width: 100%; margin-bottom: 12px;">查看课程安排</button>
+          <button class="btn btn-secondary" style="width: 100%;">返回首页</button>
+        </div>
+
+        <!-- Reminder -->
+        <div style="margin: 24px 16px; padding: 16px; background: #FFF3CD; border-radius: 12px;">
+          <div style="display: flex; gap: 12px;">
+            <span style="font-size: 20px;">💡</span>
+            <div>
+              <div style="font-size: 14px; font-weight: 600; color: #856404; margin-bottom: 4px;">温馨提示</div>
+              <div style="font-size: 13px; color: #856404;">请提前10分钟到馆做好准备，如需取消请提前24小时联系。</div>
+            </div>
+          </div>
+        </div>
+
+      </div>
+
+      <!-- Tab Bar -->
+      <div class="tab-bar">
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M10 20v-6h4v6h5v-8h3L12 3 2 12h3v8z"/></svg>
+          <span>首页</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 4h-1V2h-2v2H8V2H6v2H5c-1.11 0-1.99.9-1.99 2L3 20c0 1.1.89 2 2 2h14c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 16H5V9h14v11zM9 11H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2zm-8 4H7v2h2v-2zm4 0h-2v2h2v-2zm4 0h-2v2h2v-2z"/></svg>
+          <span>约课</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 3H5c-1.1 0-2 .9-2 2v14c0 1.1.9 2 2 2h14c1.1 0 2-.9 2-2V5c0-1.1-.9-2-2-2zM9 17H7v-7h2v7zm4 0h-2V7h2v10zm4 0h-2v-4h2v4z"/></svg>
+          <span>数据</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M19 5h-2V3H7v2H5c-1.1 0-2 .9-2 2v1c0 2.55 1.92 4.63 4.39 4.94.63 1.5 1.98 2.63 3.61 2.96V19H7v2h10v-2h-4v-3.1c1.63-.33 2.98-1.46 3.61-2.96C19.08 12.63 21 10.55 21 8V7c0-1.1-.9-2-2-2zM5 8V7h2v3.82C5.84 10.4 5 9.3 5 8zm14 0c0 1.3-.84 2.4-2 2.82V7h2v1z"/></svg>
+          <span>比赛</span>
+        </a>
+        <a href="#" class="tab-item">
+          <svg viewBox="0 0 24 24" fill="currentColor"><path d="M12 12c2.21 0 4-1.79 4-4s-1.79-4-4-4-4 1.79-4 4 1.79 4 4 4zm0 2c-2.67 0-8 1.34-8 4v2h16v-2c0-2.66-5.33-4-8-4z"/></svg>
+          <span>我的</span>
+        </a>
+      </div>
+    </div>
+    <div class="screen-label">预约成功</div>
+  </div>
+
+</div>
+
+<!-- Legend -->
+<div style="margin-top: 60px; text-align: center; color: rgba(255,255,255,0.5); font-size: 12px;">
+  <p>设计规范：DESIGN.md | 交互原型：prototype.html</p>
+  <p style="margin-top: 4px;">岩馆 C 端系统 · 基于 PRD v1.0</p>
+</div>
+
+</body>
+</html>

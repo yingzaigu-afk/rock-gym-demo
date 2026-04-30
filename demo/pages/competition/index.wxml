@@ -1,0 +1,39 @@
+<view class="tabs">
+  <block wx:for="{{tabs}}" wx:key="index">
+    <view class="tab {{activeTab === index ? 'active' : ''}}" bindtap="switchTab" data-index="{{index}}">{{item}}</view>
+  </block>
+</view>
+
+<view class="competition-list">
+  <block wx:for="{{competitions}}" wx:key="id">
+    <view class="card competition-card">
+      <view class="competition-img competition-img-{{item.gradient}}">
+        <text class="competition-emoji">{{item.gradient === 'orange' ? '赛' : item.gradient === 'green' ? '青' : '往'}}</text>
+        <view class="competition-status competition-status-{{item.status}}">
+          {{item.status === 'registering' ? '报名中' : item.status === 'upcoming' ? '即将开始' : '已结束'}}
+        </view>
+      </view>
+      <view class="competition-body">
+        <text class="competition-title">{{item.title}}</text>
+        <view class="competition-meta">
+          <text class="meta-item">{{item.date}}{{item.time ? ' ' + item.time : ''}}</text>
+          <text class="meta-item">{{item.location}}</text>
+          <text class="meta-item">已报名 {{item.enrolled}}/{{item.total}}</text>
+        </view>
+        <view class="competition-projects">
+          <block wx:for="{{item.projects}}" wx:key="index">
+            <text class="project-tag">{{item}}</text>
+          </block>
+        </view>
+        <view class="competition-footer">
+          <view class="competition-price {{item.price === 0 ? 'free' : ''}}">
+            {{item.price === 0 ? '免费' : '¥' + item.price + ' 起'}}
+          </view>
+          <button class="btn btn-primary btn-sm" bindtap="registerCompetition" data-index="{{index}}">
+            {{item.status === 'ended' ? '查看成绩' : '立即报名'}}
+          </button>
+        </view>
+      </view>
+    </view>
+  </block>
+</view>

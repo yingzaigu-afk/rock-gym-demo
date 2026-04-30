@@ -1,0 +1,208 @@
+.booking-flow {
+  padding: 16px;
+}
+.flow-step {
+  display: flex;
+  gap: 16px;
+  position: relative;
+}
+.flow-step:not(:last-child)::after {
+  content: '';
+  position: absolute;
+  left: 19px;
+  top: 40px;
+  bottom: -8px;
+  width: 2px;
+  background: #E9ECEF;
+}
+.flow-step.completed:not(:last-child)::after {
+  background: #FF6B35;
+}
+.step-num {
+  width: 40px;
+  height: 40px;
+  border-radius: 50%;
+  background: #F8F9FA;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-weight: 600;
+  font-size: 16px;
+  color: #6C757D;
+  flex-shrink: 0;
+  position: relative;
+  z-index: 1;
+}
+.flow-step.completed .step-num {
+  background: #FF6B35;
+  color: white;
+}
+.flow-step.active .step-num {
+  background: #FF6B35;
+  color: white;
+  box-shadow: 0 0 0 4px #FFF0ED;
+}
+.step-content {
+  padding-top: 8px;
+}
+.step-title {
+  display: block;
+  font-size: 16px;
+  font-weight: 600;
+  color: #2D3436;
+  margin-bottom: 4px;
+}
+.step-desc {
+  display: block;
+  font-size: 14px;
+  color: #6C757D;
+}
+.date-scroll {
+  white-space: nowrap;
+  padding: 0 16px;
+}
+.date-picker {
+  display: flex;
+  gap: 8px;
+}
+.date-item {
+  min-width: 56px;
+  padding: 8px;
+  text-align: center;
+  border-radius: 8px;
+  background: #F8F9FA;
+}
+.date-item.active {
+  background: #FF6B35;
+  color: white;
+}
+.day-name {
+  display: block;
+  font-size: 12px;
+}
+.day-num {
+  display: block;
+  font-size: 18px;
+  font-weight: 600;
+  margin-top: 4px;
+}
+.time-grid {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+  padding: 0 16px;
+}
+.time-slot {
+  width: calc(33.33% - 6px);
+  padding: 12px;
+  text-align: center;
+  border-radius: 8px;
+  background: #F8F9FA;
+  font-size: 14px;
+  box-sizing: border-box;
+}
+.time-slot.active {
+  background: #FFF0ED;
+  border: 1px solid #FF6B35;
+  color: #FF6B35;
+  font-weight: 500;
+}
+.course-type-grid {
+  display: flex;
+  gap: 12px;
+  padding: 0 16px;
+}
+.course-type-item {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  background: #F8F9FA;
+  text-align: center;
+}
+.course-type-item.active {
+  background: #FFF0ED;
+  border: 2px solid #FF6B35;
+}
+.course-icon {
+  display: block;
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 8px;
+}
+.course-name {
+  display: block;
+  font-size: 14px;
+  font-weight: 600;
+  color: #2D3436;
+  margin-bottom: 4px;
+}
+.course-desc {
+  display: block;
+  font-size: 12px;
+  color: #6C757D;
+}
+.duration-grid {
+  display: flex;
+  gap: 12px;
+  padding: 0 16px;
+}
+.duration-item {
+  flex: 1;
+  padding: 16px;
+  border-radius: 12px;
+  background: #F8F9FA;
+  text-align: center;
+}
+.duration-item.active {
+  background: #FFF0ED;
+  border: 2px solid #FF6B35;
+}
+.duration-time {
+  display: block;
+  font-size: 24px;
+  font-weight: 700;
+  color: #2D3436;
+}
+.duration-unit {
+  display: block;
+  font-size: 12px;
+  color: #6C757D;
+  margin-top: 4px;
+}
+.price-preview {
+  padding: 24px 16px;
+}
+.price-card {
+  background: white;
+  border-radius: 12px;
+  padding: 16px;
+  margin-bottom: 16px;
+}
+.price-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 12px 0;
+  border-bottom: 1px solid #E9ECEF;
+}
+.price-row:last-child {
+  border-bottom: none;
+}
+.price-label {
+  color: #6C757D;
+  font-size: 14px;
+}
+.price-value {
+  color: #2D3436;
+  font-weight: 500;
+}
+.price-total {
+  border-top: 1px dashed #E9ECEF;
+  padding-top: 16px;
+  margin-top: 4px;
+}
+.price-amount {
+  font-size: 20px;
+  font-weight: 700;
+  color: #FF6B35;
+}
